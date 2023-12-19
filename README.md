@@ -1,21 +1,27 @@
 # Modernia
 
+![项目截图](url/to/your/image.png)
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/your_username/your_project/blob/main/LICENSE)
+[![Python Version](https://img.shields.io/badge/python-3.x-brightgreen.svg)](https://www.python.org/downloads/)
+
 这里写下你项目的简要介绍或概述。
 
-📚 介绍
+## 📚 介绍
 
 在这个部分，你可以详细描述你的项目是做什么的，它解决了什么问题，以及它的主要特点或功能。
 
-⚙️ 安装
+## ⚙️ 安装
 
-确保你安装了 Python 3，并执行以下命令来安装 botpy 包：
+确保你安装了 Python 3，并执行以下命令来安装 `botpy` 包：
 
+```
 bash
-Copy code
 $ git clone https://github.com/your_username/your_project.git
 $ cd your_project
 $ pip install botpy
 # 其他安装步骤（如果有的话）
+```
 如果你还没有安装 pip，你需要先安装 Python 的 pip 包管理器。
 
 🚀 使用说明
