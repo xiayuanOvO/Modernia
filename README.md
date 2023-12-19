@@ -3,6 +3,9 @@
 ![项目截图](url/to/your/image.png)
 
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/xiayuanOvO/Modernia/blob/main/LICENSE)
+
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+
 [![Python Version](https://img.shields.io/badge/python-3.x-brightgreen.svg)](https://www.python.org/downloads/)
 
 这里写下你项目的简要介绍或概述。
