@@ -48,15 +48,29 @@ python core\python\main.py %cd%
 
 > Windows 环境下可以直接运行`start.bat`运行。
 
-参与贡献
-如果你希望其他人参与你的项目，这里可以提供一些指导，例如如何提交 bug 报告或请求新功能。例如：
+[![Custom Badge](https://img.shields.io/badge/Custom_Text-Your_Color.svg)](https://your_link)
 
-欢迎贡献代码！如果您有建议、bug 报告或想要贡献代码，请提交 issue 或发起 pull request。
+[![GitHub stars](https://img.shields.io/github/stars/your_username/your_repo.svg?style=social&label=Stars)](https://github.com/your_username/your_repo)
 
-📝 许可证
-在这里说明你项目的许可证信息。比如：
+[![Version](https://img.shields.io/badge/Version-1.0-green.svg)](https://github.com/your_username/your_repo)
 
-MIT License（举例，可以根据你的需求进行修改）
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/your_username/your_repo)
 
-📧 联系方式
-提供联系方式，比如电子邮件或者社交媒体链接。
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/downloads/)
+
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/your_username/your_repo.svg)](https://github.com/your_username/your_repo)
+
+[![Stars](https://img.shields.io/github/stars/your_username/your_repo.svg?style=square&label=Stars&color=yellow)](https://github.com/your_username/your_repo)
+
+[![Version](https://img.shields.io/badge/Version-1.0-green.svg?style=for-the-badge&logo=appveyor)](https://github.com/your_username/your_repo)
+
+[![Build](https://img.shields.io/badge/Build-Success-brightgreen.svg?style=flat-square&logo=travis&logoColor=white)](https://github.com/your_username/your_repo)
+
+[![Custom Badge](https://img.shields.io/badge/Custom-Text-ff69b4.svg?style=plastic)](https://example.com)
+
+[![Flat Badge](https://img.shields.io/badge/Flat_Badge-Text-blue.svg?style=flat)](https://example.com)
+
+[![Plastic Badge](https://img.shields.io/badge/Plastic_Badge-Text-red.svg?style=plastic)](https://example.com)
+
