@@ -1,49 +1,54 @@
 # Modernia
+
 <p align="center">
-  <a href="https://raw.githubusercontent.com/hoshinonyaruko/gensokyo/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-Apache--2.0-blue.svg" alt="license">
-  </a>
+    <a href="https://raw.githubusercontent.com/hoshinonyaruko/gensokyo/main/LICENSE">
+        <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge" alt="license">
+    </a>
+    <a href="https://www.python.org/downloads/">
+        <img src="https://img.shields.io/badge/Python-3.x-blue.svg?style=for-the-badge&logo=python" alt="license">
+    </a>
 </p>
+##  介绍
 
-[![forthebadge](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOTUuNDE4NDYwODQ1OTQ3MjciIGhlaWdodD0iMzUiIHZpZXdCb3g9IjAgMCAxOTUuNDE4NDYwODQ1OTQ3MjcgMzUiPjxyZWN0IHdpZHRoPSI4MS41NzM2Mjc0NzE5MjM4MyIgaGVpZ2h0PSIzNSIgZmlsbD0iIzMxQzRGMyIvPjxyZWN0IHg9IjgxLjU3MzYyNzQ3MTkyMzgzIiB3aWR0aD0iMTEzLjg0NDgzMzM3NDAyMzQ0IiBoZWlnaHQ9IjM1IiBmaWxsPSIjMzg5QUQ1Ii8+PHRleHQgeD0iNDAuNzg2ODEzNzM1OTYxOTE0IiB5PSIxNy41IiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iJ1JvYm90bycsIHNhbnMtc2VyaWYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGFsaWdubWVudC1iYXNlbGluZT0ibWlkZGxlIiBsZXR0ZXItc3BhY2luZz0iMiIgX21zdFRleHRIYXNoPSI5Njc1NDQ1IiBfbXN0SGFzaD0iNjU4Ij7orrjlj6/or4E8L3RleHQ+PHRleHQgeD0iMTM4LjQ5NjA0NDE1ODkzNTU1IiB5PSIxNy41IiBmb250LXNpemU9IjEyIiBmb250LWZhbWlseT0iJ01vbnRzZXJyYXQnLCBzYW5zLXNlcmlmIiBmaWxsPSIjRkZGRkZGIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iOTAwIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9IjIiIF9tc3RUZXh0SGFzaD0iODcyNjkiIF9tc3RIYXNoPSI2NTkiPkFQQUNIRS0yLjA8L3RleHQ+PC9zdmc+)](https://forthebadge.com)
+### 功能介绍
 
-![项目截图](url/to/your/image.png)
+<details>
+<summary>功能列表</summary>
 
-[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/xiayuanOvO/Modernia/blob/main/LICENSE)
+行尾括号内为插件Key，对应着配置文件config-plugin.yaml中各个插件的根配置项key
+	
+#### 基本功能
+- [x] 签到与财富 (sc)
 
-[![Python Version](https://img.shields.io/badge/python-3.x-brightgreen.svg)](https://www.python.org/downloads/)
+### 实用工具
+- [x] 60s：每天60秒读懂世界
 
-这里写下你项目的简要介绍或概述。
+</details>
 
-## 📚 介绍
+## 准备工作
 
-在这个部分，你可以详细描述你的项目是做什么的，它解决了什么问题，以及它的主要特点或功能。
+### 安装
 
-## ⚙️ 安装
+确保你安装了 Python 3.8+，并执行以下命令来安装 `qq-botpy`与`requests`包：
 
-确保你安装了 Python 3，并执行以下命令来安装 `botpy` 包：
-
+```bash
+pip install qq-botpy
+pip install requests
 ```
-bash
-$ git clone https://github.com/your_username/your_project.git
-$ cd your_project
-$ pip install botpy
-# 其他安装步骤（如果有的话）
+
+> Windows 环境下可以直接运行`build.bat`进行一键部署。
+
+### 使用说明
+
+在项目目录下运行：
+
+```bash
+python core\python\main.py %cd%
 ```
-如果你还没有安装 pip，你需要先安装 Python 的 pip 包管理器。
 
-🚀 使用说明
-说明如何使用你的项目，可能包括代码示例或指引。例如：
+> Windows 环境下可以直接运行`start.bat`运行。
 
-python
-Copy code
-# 示例代码
-from botpy import Bot
-
-# 使用示例
-my_bot = Bot()
-my_bot.run()
-🤝 参与贡献
+参与贡献
 如果你希望其他人参与你的项目，这里可以提供一些指导，例如如何提交 bug 报告或请求新功能。例如：
 
 欢迎贡献代码！如果您有建议、bug 报告或想要贡献代码，请提交 issue 或发起 pull request。
