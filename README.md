@@ -1,13 +1,13 @@
+<div align="center">
 # Modernia
 
-<p align="center">
     <a href="https://raw.githubusercontent.com/hoshinonyaruko/gensokyo/main/LICENSE">
         <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge" alt="license">
     </a>
     <a href="https://www.python.org/downloads/">
         <img src="https://img.shields.io/badge/Python-3.x-blue.svg?style=for-the-badge&logo=python" alt="license">
     </a>
-</p>
+</div>
 
 ##  介绍
 
