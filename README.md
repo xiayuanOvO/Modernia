@@ -42,11 +42,18 @@ pip install requests
 
 ### 使用说明
 
-在项目目录下运行：
+1. 配置完 `config\config.yaml` 文件。
 
-```bash
-python core\python\main.py %cd%
-```
+2. 在项目目录下运行：
 
-> Windows 环境下可以直接运行`start.bat`运行。
+    ```bash
+    python core\python\main.py %cd%
+    ```
+   
+    > Windows 环境下可以直接运行`start.bat`运行。
 
+### 贡献
+
+**欢迎大佬与我共同完善本项目。**
+
+我本人的想法对于该项目的娱乐性比较匮乏，所以更新比较慢。
