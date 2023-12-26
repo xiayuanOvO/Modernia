@@ -6,17 +6,17 @@ import utils
 from config.gameConfig import game_config
 
 
-def sign(po: user.UserData) -> str:
+def sign(user_data: user.UserData) -> str:
     """
     玩家功能：签到
-    :param po: player_object: 已创建的玩家对象
+    :param user_data: player_object: 已创建的玩家对象
     :return: 返回签到消息。
     """
     # 获取今天凌晨时间戳
     times = utils.get_local_times()
 
     # 获取上一次签到时间戳
-    last_times = po.get_sign_times()
+    last_times = user_data.get_sign_times()
 
     # 今日已签到
     if last_times == times:
@@ -24,9 +24,9 @@ def sign(po: user.UserData) -> str:
 
     # 今日未签到，签到奖励
     gold = game_config.get_sign_gold()
-    po.add_gold(gold)
+    user_data.add_gold(gold)
 
-    po.set_sign_times(times)
+    user_data.set_sign_times(times)
     return f'签到成功：\n获得：{gold}金币'
 
 
