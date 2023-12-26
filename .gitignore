@@ -162,3 +162,5 @@ docs/
 
 # Test file
 src/test.py
+Test/
+Releases/
