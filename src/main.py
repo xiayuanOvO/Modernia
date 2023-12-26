@@ -11,13 +11,6 @@ _log = logging.get_logger()
 
 class MyClient(botpy.Client):
     async def on_at_message_create(self, message: Message):
-        """
-        {!!! -- 该计划暂时搁置 -- !!!}
-        将消息处理分为三层
-        第一层，最底层权限：即使在 status.code = 1[娱乐：监禁状态] 状态下，也可以正常使用。
-        第二层，娱乐禁止权限：status.code = 1[娱乐：监禁状态] 状态下，不能正常唤醒的功能分区。
-        第三层，不受影响区（？）
-        """
         print(message.content)
         # 无消息情况
         split = message.content.split()

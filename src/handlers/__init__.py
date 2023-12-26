@@ -4,12 +4,12 @@ import game
 import user
 import webapi
 from config import shop
-from config.gameConfig import game_config
+from config.gameConfig import config_game
 
 
 async def handle_menu(split: list, message: Message, user_data: user.UserData):
     at_author = f'<@!{message.author.id}>'
-    content = (game_config.menu_text
+    content = (config_game.menu_text
                .replace("{at_author}", at_author)
                .replace("{author_id}", message.author.id))
     await message.reply(content=content)
@@ -24,7 +24,7 @@ async def handle_query(split: list, message: Message, user_data: user.UserData):
     at_author = f'<@!{message.author.id}>'
     author_gold = user_data.get_gold()
 
-    msg = (game_config.g
+    msg = (config_game.g
            .replace("{at_author}", at_author)
            .replace("{author_id}", message.author.id)
            .replace("{author_gold}", str(author_gold)))
