@@ -30,5 +30,6 @@ def get_daily_news_path():
     image_path = f"{config.run_path}\\data\\static\\images\\dailyNews\\{date}.png"
     with open(image_path, "wb") as file:
         file.write(req.content)
+    game_config.set_daily_news(local_times, image_path)
 
     return True, image_path
