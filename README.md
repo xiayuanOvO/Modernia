@@ -17,8 +17,6 @@
 <details>
 <summary>功能列表</summary>
 
-行尾括号内为插件Key，对应着配置文件config-plugin.yaml中各个插件的根配置项key
-	
 #### 基本功能
 - [x] 签到与财富 (sc)
 
