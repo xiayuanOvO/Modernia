@@ -2,11 +2,11 @@
 
 # Modernia
 
-  <a href="https://raw.githubusercontent.com/hoshinonyaruko/gensokyo/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge" alt="license">
+  <a href="https://github.com/xiayuanOvO/Modernia/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square&logo=apache" alt="license">
   </a>
   <a href="https://www.python.org/downloads/">
-    <img src="https://img.shields.io/badge/Python-3.8+-blue.svg?style=for-the-badge&logo=python" alt="license">
+    <img src="https://img.shields.io/badge/Python-3.8+-brightgreen.svg?style=flat-square&logo=python" alt="license">
   </a>
 </div>
 
@@ -50,4 +50,3 @@ python core\python\main.py %cd%
 
 > Windows 环境下可以直接运行`start.bat`运行。
 
-[![Flat-Square Badge](https://img.shields.io/badge/Flat_Square_Badge-Text-green.svg?style=flat-square)](https://example.com)
