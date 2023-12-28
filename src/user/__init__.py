@@ -15,7 +15,7 @@ class UserData:
         :param author_id: 玩家频道 ID
         """
         self.author_id = author_id
-        self.player_path = f"{config.user}{self.author_id}.json"
+        self.player_path = f"{config.USER}{self.author_id}.json"
 
         # 查询文件是否存在
         if os.path.isfile(self.player_path):
