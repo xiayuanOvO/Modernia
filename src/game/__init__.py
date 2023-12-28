@@ -3,7 +3,7 @@ import re
 
 import user
 import utils
-from config import config
+from config.game import game_config
 
 
 def sign(user_data: user.UserData) -> str:
@@ -23,7 +23,7 @@ def sign(user_data: user.UserData) -> str:
         return '你今天已经签过到了！明天再来吧。'
 
     # 今日未签到，签到奖励
-    gold = config.config_game()
+    gold = game_config.config_game()
     user_data.add_gold(gold)
 
     user_data.set_sign_times(times)

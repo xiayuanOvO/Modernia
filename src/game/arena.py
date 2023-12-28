@@ -1,5 +1,4 @@
 import json
-import os.path
 from user import UserData
 import config
 

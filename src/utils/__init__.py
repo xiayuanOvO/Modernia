@@ -22,10 +22,10 @@ def get_local_times() -> float:
 
 def create_file():
 
-    if not os.path.exists(f"{config.run}/data/"):
-        os.mkdir(f"{config.run}/data/")
-    if not os.path.exists(f"{config.run}/config/"):
-        os.mkdir(f"{config.run}/config/")
+    if not os.path.exists(f"{config.RUN}/data/"):
+        os.mkdir(f"{config.RUN}/data/")
+    if not os.path.exists(f"{config.RUN}/config/"):
+        os.mkdir(f"{config.RUN}/config/")
 
     with open(config.config, "w", encoding="utf-8") as file:
         file.write("robot:\n  # qq开放平台申请的机器人信息"

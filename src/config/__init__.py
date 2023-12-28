@@ -3,16 +3,20 @@ import sys
 import yaml
 
 if len(sys.argv) == 1:
-    run = sys.path[0]
+    RUN = sys.path[0]
 else:
-    run = sys.argv[1]
+    RUN = sys.argv[1]
 
+CONFIG = os.path.join(RUN, "config", "config.yaml")
+GAME = os.path.join(RUN, "config", "game.yaml")
+USER = os.path.join(RUN, "data", "USER", "all")
+temp_good_list = os.path.join(RUN, "data", "shop", "tempGoodList.json")
+arena_rankings_data = os.path.join(RUN, "data", "arena", "all", "rankings.json")
 
-config = os.path.join(run, "config", "config.yaml")
-game = os.path.join(run, "config", "game.yaml")
-user = os.path.join(run, "data", "user", "all")
-temp_good_list = os.path.join(run, "data", "shop", "tempGoodList.json")
-arena_rankings_data = os.path.join(run, "data", "arena", "all", "rankings.json")
+# path = {
+#     "Config": os.path.join(RUN, "config", "config.yaml")
+#     "Game": os.path.join(RUN, "config", "game.yaml")
+# }
 
 
 def get_bot_info():
@@ -20,7 +24,7 @@ def get_bot_info():
     获取 config.yaml 中机器人的信息
     :return: appid, secret, token
     """
-    with open(config, encoding="utf-8") as file:
+    with open(CONFIG, encoding="utf-8") as file:
         config_json = yaml.load(file.read(), yaml.FullLoader)
         robot = config_json.get("robot", {})
         appid = robot.get("appid", "")
