@@ -3,7 +3,7 @@ from botpy import logging
 from botpy.message import Message
 
 import user
-from handlers import handle_menu, handle_sign, handle_query, handle_chase, handle_shop, handle_buy, handle_daily_news
+from handlers import handle_menu, handle_sign, handle_query, handle_chase, handle_shop, handle_buy, handle_daily_news, handle_one_say
 
 _log = logging.get_logger()
 
@@ -31,6 +31,7 @@ class MyClient(botpy.Client):
             "/商店": handle_shop,
             "/购买": handle_buy,
             "/60s": handle_daily_news,
+            "/一言": handle_one_say
         }
 
         if keyword in command_handlers:

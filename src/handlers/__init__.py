@@ -1,3 +1,4 @@
+import requests
 from botpy.message import Message
 import game
 import user
@@ -66,4 +67,10 @@ async def handle_chase(split: list, message: Message, user_data: user.UserData):
     pk = game.PK(user_data, user2_data)
     msg = pk.attack()
 
+    await message.reply(content=msg)
+
+
+async def handle_one_say(split: list, message: Message, user_data: user.UserData):
+    req = requests.get("http://api.treason.cn/API/yiyan.php")
+    msg = req.text
     await message.reply(content=msg)
