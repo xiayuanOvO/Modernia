@@ -7,7 +7,7 @@ from config.shop import temp_good_list
 from config.game import game_config
 
 
-async def handle_menu(split: list, message: Message, user_data: user.UserData):
+async def menu(split: list, message: Message, user_data: user.UserData):
     at_author = f'<@!{message.author.id}>'
     content = (game_config.menu_content
                .replace("{at_author}", at_author)
@@ -74,3 +74,14 @@ async def handle_one_say(split: list, message: Message, user_data: user.UserData
     req = requests.get("http://api.treason.cn/API/yiyan.php")
     msg = req.text
     await message.reply(content=msg)
+
+
+async def draw_sprite(split: list, message: Message, user_data: user.UserData):
+    if len(split) == 2:
+        await message.reply(content=f"这里是宠物寻访：\n祈愿指令: \n祈愿一次【/宠物祈愿 1】\n祈愿十次【/宠物祈愿 10】")
+        return
+    if split[2] == "1":
+        msg = "11"
+
+    await message.reply(content=msg)
+
