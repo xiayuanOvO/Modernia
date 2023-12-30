@@ -32,7 +32,7 @@ def create_file():
     with open(config.CONFIG, "w", encoding="utf-8") as file:
         yaml.dump(conf, file, allow_unicode=True)
 
-    with open(os.path.join(config.RUN, "start.bat")) as file:
+    with open(os.path.join(config.RUN, "start.bat"), "w") as file:
         file.write("Modernia.exe")
 
     if not os.path.isfile(config.GAME):
