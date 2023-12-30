@@ -20,40 +20,23 @@
 <summary>功能列表</summary>
 
 #### 基本功能
-- [x] 签到与财富 (sc)
+- [x] 签到：获得金币
+- [x] 查询：查询玩家数据
 
 ### 实用工具
 - [x] 60s：每天60秒读懂世界
+- [x] 一言：输出随机语录
 
 </details>
 
-## 准备工作
+## 使用
 
-### 安装
-
-确保你安装了 Python 3.8+，并执行以下命令来安装 `qq-botpy`与`requests`包：
-
-```bash
-pip install qq-botpy
-pip install requests
-```
-
-> Windows 环境下可以直接运行`build.bat`进行一键部署。
-
-### 使用说明
-
-1. 配置完 `config\config.yaml` 文件。
-
-2. 在项目目录下运行：
-
-    ```bash
-    python core\python\main.py %cd%
-    ```
-   
-    > Windows 环境下可以直接运行`start.bat`运行。
+1. 运行 `Modernia.exe` 。
+2. 配置 `config\config.yml` 文件。
+3. 运行 `start.bat` 文件。
 
 ### 贡献
 
 **欢迎大佬与我共同完善本项目。**
 
-我本人的想法对于该项目的娱乐性比较匮乏，所以更新比较慢。
+目前该项目的娱乐性比较匮乏，欢迎积极提交 `Issues`。
