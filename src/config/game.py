@@ -15,8 +15,7 @@ class GameConfig:
         with open(config.GAME, "w", encoding="utf-8") as file:
             yaml.dump(self.yaml_game, file, allow_unicode=True)
 
-    def __init__(self):
-        print("GameConfig: __init__")
+    def load_data(self):
         self.read_config()
         self.select_content = self.yaml_game.get("select", {}).get("content", "查询内容为空。")
         self.menu_content = self.yaml_game.get("menu", {}).get("content", "菜单内容为空。")

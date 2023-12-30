@@ -7,11 +7,11 @@ class TempGoodList:
     good_list = {}
     temp_good_list_json: json
 
-    def __init__(self):
+    def load_data(self):
         self.read_config()
 
     def read_config(self):
-        with open(config.temp_good_list, encoding="utf-8") as file:
+        with open(config.TEMP_GOOD_LIST, encoding="utf-8") as file:
             self.temp_good_list_json = json.load(file)
         self.good_list = self.temp_good_list_json.get("goodList", [])
 
