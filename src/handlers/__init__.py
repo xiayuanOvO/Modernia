@@ -78,10 +78,13 @@ async def handle_one_say(split: list, message: Message, user_data: user.UserData
 
 async def draw_sprite(split: list, message: Message, user_data: user.UserData):
     if len(split) == 2:
-        await message.reply(content=f"这里是宠物寻访：\n祈愿指令: \n祈愿一次【/宠物祈愿 1】\n祈愿十次【/宠物祈愿 10】")
+        await message.reply(content=f"这里是宠物寻访：\n寻访指令: \n寻访一次【/宠物寻访 1】\n寻访十次【/宠物寻访 10】")
         return
     if split[2] == "1":
-        msg = "11"
-
+        msg = "1"
+    elif split[2] == "10":
+        msg = "10"
+    else:
+        msg = "寻访指令错误，请检查格式：\n寻访指令: \n寻访一次【/宠物寻访 1】\n寻访十次【/宠物寻访 10】"
     await message.reply(content=msg)
 
