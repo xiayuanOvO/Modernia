@@ -165,4 +165,4 @@ src/test.py
 Test/
 Releases/
 data/
-./config/
+config/
