@@ -4,7 +4,7 @@ import requests
 
 import config
 from config.game import game_config
-import utils
+from utils import times
 
 
 def get_daily_news_path():
@@ -13,7 +13,7 @@ def get_daily_news_path():
     :return: 获取成功 (bool), 图片路径 (str)
     """
     last_times, image_path = game_config.get_daily_news()
-    local_times = utils.get_local_times()
+    local_times = times.get_local_times()
     if last_times == local_times:
         return True, image_path
     req = requests.get("https://jx.iqfk.top/60s.php?key=54K55paw6Iqx6Zuo")
