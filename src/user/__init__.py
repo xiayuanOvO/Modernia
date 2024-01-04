@@ -1,7 +1,7 @@
 import json
 import os
 
-import config
+from internal import base
 
 
 class UserData:
@@ -15,7 +15,7 @@ class UserData:
         :param author_id: 玩家频道 ID
         """
         self.author_id = author_id
-        self.player_path = f"{config.USER}{self.author_id}.json"
+        self.player_path = f"{base.PATH_USER}{self.author_id}.json"
 
         # 查询文件是否存在
         if os.path.isfile(self.player_path):
@@ -27,10 +27,6 @@ class UserData:
     def __exit__(self, exc_type, exc_val, exc_tb):
         with open(self.player_path, "w", encoding="utf-8") as f:
             json.dump(self.player_json, f, ensure_ascii=False)
-
-    # def __del__(self):
-    #     with open(self.player_path, 'w', encoding="utf-8") as f:
-    #         json.dump(self.player_json, f, ensure_ascii=False)
 
     def set_sign_times(self, sign_times: float):
         """

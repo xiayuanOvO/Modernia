@@ -1,15 +1,17 @@
 import requests
 from botpy.message import Message
+
 import game
 import user
 import webapi
 from config.shop import temp_good_list
-from config.game import game_config
+from config.game import GAME_CONF
+from config.gacha import GACHA_INFO
 
 
-async def menu(split: list, message: Message, user_data: user.UserData):
+async def handle_menu(split: list, message: Message, user_data: user.UserData):
     at_author = f'<@!{message.author.id}>'
-    content = (game_config.menu_content
+    content = (GAME_CONF.menu_content
                .replace("{at_author}", at_author)
                .replace("{author_id}", message.author.id))
     await message.reply(content=content)
@@ -24,7 +26,7 @@ async def handle_query(split: list, message: Message, user_data: user.UserData):
     at_author = f'<@!{message.author.id}>'
     author_gold = user_data.get_gold()
 
-    msg = (game_config.select_content
+    msg = (GAME_CONF.select_content
            .replace("{at_author}", at_author)
            .replace("{author_id}", message.author.id)
            .replace("{author_gold}", str(author_gold)))
@@ -77,14 +79,29 @@ async def handle_one_say(split: list, message: Message, user_data: user.UserData
 
 
 async def draw_sprite(split: list, message: Message, user_data: user.UserData):
+    # 消息格式：@机器人 /精灵招募 池子名称 数量
+    #            0     1        2    3
+    # 精灵招募说明
     if len(split) == 2:
-        await message.reply(content=f"这里是宠物寻访：\n寻访指令: \n寻访一次【/宠物寻访 1】\n寻访十次【/宠物寻访 10】")
+        msg = GACHA_INFO.get_open_pool()
+        await message.reply(content=msg)
         return
-    if split[2] == "1":
-        msg = "1"
-    elif split[2] == "10":
-        msg = "10"
-    else:
-        msg = "寻访指令错误，请检查格式：\n寻访指令: \n寻访一次【/宠物寻访 1】\n寻访十次【/宠物寻访 10】"
-    await message.reply(content=msg)
 
+    def is_existing(pool_name: str) -> bool:
+        for gacha in GACHA_INFO.Gacha_Pools:
+            if pool_name == gacha.name:
+                return True
+        return False
+
+    msg = "招募指令错误，请检查格式：\n招募指令: \n招募一次【/精灵招募 招募池名称 1】\n招募十次【/精灵招募 招募池名称 10】"
+    if is_existing(split[2]):
+        if len(split) == 3:  # 只有池子名，没有数量，默认单抽
+            split.append("1")
+
+        # 招募开始
+        if split[3] == "1":
+            msg = "1"
+        elif split[3] == "10":
+            msg = "10"
+    await message.reply(content=msg)
+    return

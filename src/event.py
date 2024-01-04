@@ -6,8 +6,17 @@ from botpy import logging
 from botpy.message import Message
 
 import user
-import handlers
-# handle_menu, handle_sign, handle_query, handle_chase, handle_shop, handle_buy, handle_daily_news, handle_one_say
+from handlers import (
+    handle_menu,
+    handle_sign,
+    handle_query,
+    handle_shop,
+    handle_buy,
+    handle_daily_news,
+    handle_one_say,
+    handle_chase,
+    draw_sprite
+)
 
 _log = logging.get_logger()
 
@@ -28,24 +37,25 @@ class MyClient(botpy.Client):
 
         keyword = split[1]
 
+        # 精准菜单
         command_handlers = {
-            '/菜单': handlers.menu,
-            '/签到': handlers.handle_sign,
-            '/查询': handlers.handle_query,
-            "/商店": handlers.handle_shop,
-            "/购买": handlers.handle_buy,
-            "/60s": handlers.handle_daily_news,
-            "/一言": handlers.handle_one_say,
-            "/宠物寻访": handlers.draw_sprite,
-
+            '/菜单': handle_menu,
+            '/签到': handle_sign,
+            '/查询': handle_query,
+            "/商店": handle_shop,
+            "/购买": handle_buy,
+            "/60s": handle_daily_news,
+            "/一言": handle_one_say,
+            "/精灵招募": draw_sprite,
         }
 
         if keyword in command_handlers:
             await command_handlers[keyword](split, message, user_data)
         else:
             command_handlers = {
-                "/追击": handlers.handle_chase,
+                "/追击": handle_chase
             }
+
             for key in command_handlers.keys():
                 if key in keyword:
                     await command_handlers[key](split, message, user_data)

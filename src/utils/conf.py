@@ -1,0 +1,88 @@
+import os
+
+import yaml
+
+import config.gacha
+from internal import base
+
+
+def generate_config():
+    data = {
+        "robot": {
+            "appid": '',
+            "token": '',
+            "secret": ''
+        },
+        "admin": {
+            "id": ["3082925737"]
+        }
+    }
+    with open(base.PATH_CONFIG, "w", encoding="utf-8") as file:
+        file.write("# 配置解释请查看：https://xiayuanovo.github.io/Modernia-docs/guide/config.html\n")
+        yaml.dump(data, file, allow_unicode=True)
+
+
+def generate_start_cmd():
+    with open(os.path.join(base.PATH_RUN, "start.bat"), "w") as file:
+        file.write("Modernia.exe")
+
+
+def generate_game_conf():
+    data = {
+        "menu": {
+            "content": "{at_author} 欢迎体验Modernia：\n"
+                       "        /签到    签到打开，获得金币\n"
+                       "        /查询    查询自身信息\n"
+        },
+        "select": {
+            "content": "{at_author}\n金币: {author_gold}"
+        },
+        "sign": {
+            "gold_min": 0,
+            "gold_max": 10
+        },
+        "daily_news": {
+            "date_times": float,
+            "image_path": ""
+        }
+    }
+    with open(base.PATH_GAME_CONF, "w", encoding="utf-8") as file:
+        file.write("# 配置解释请查看：https://xiayuanovo.github.io/Modernia-docs/guide/config.html\n")
+        yaml.dump(data, file, allow_unicode=True)
+
+
+def generate_temp_good_list():
+    data = {}
+    with open(base.PATH_TEMP_GOOD_LIST, "w", encoding="utf-8") as file:
+        yaml.dump(data, file, allow_unicode=True)
+
+
+def generate_gacha_table():
+    data = {}
+    with open(base.PATH_GACHA_TABLE, "w", encoding="utf-8") as file:
+        yaml.dump(data, file, allow_unicode=True)
+
+
+def create_directory():
+    paths = [
+        # os.path.join(config.RUN, "data"),
+        os.path.join(base.PATH_RUN, "data", "excel"),
+        os.path.join(base.PATH_RUN, "data", "shop"),
+        # os.path.join(base.PATH_RUN, "data", "static"),
+        # os.path.join(base.PATH_RUN, "data", "static", "images"),
+        os.path.join(base.PATH_RUN, "data", "static", "images", "dailyNews"),
+        # os.path.join(base.PATH_RUN, "data", "user"),
+        os.path.join(base.PATH_RUN, "data", "user", "all"),
+        # config
+        os.path.join(base.PATH_RUN, "config"),
+    ]
+
+    for path in paths:
+        os.makedirs(path, exist_ok=True)
+
+
+def load_all_filedata():
+    from config import gacha, game, shop
+    gacha.GACHA_INFO.load_pool()
+    game.GAME_CONF.read_config()
+    shop.temp_good_list.read_config()

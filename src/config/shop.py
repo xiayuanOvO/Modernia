@@ -1,5 +1,5 @@
 import json
-import config
+from internal import base
 from user import UserData
 
 
@@ -7,11 +7,8 @@ class TempGoodList:
     good_list = {}
     temp_good_list_json: json
 
-    def load_data(self):
-        self.read_config()
-
     def read_config(self):
-        with open(config.TEMP_GOOD_LIST, encoding="utf-8") as file:
+        with open(base.PATH_TEMP_GOOD_LIST, encoding="utf-8") as file:
             self.temp_good_list_json = json.load(file)
         self.good_list = self.temp_good_list_json.get("goodList", [])
 

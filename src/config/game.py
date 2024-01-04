@@ -2,7 +2,7 @@ import random
 
 import yaml
 
-import config
+from internal import base
 
 
 class GameConfig:
@@ -11,23 +11,19 @@ class GameConfig:
     select_content: str
     menu_content: str
 
-    def save_config(self):
-        with open(config.GAME, "w", encoding="utf-8") as file:
-            yaml.dump(self.yaml_game, file, allow_unicode=True)
-
-    def load_data(self):
-        self.read_config()
-        self.select_content = self.yaml_game.get("select", {}).get("content", "查询内容为空。")
-        self.menu_content = self.yaml_game.get("menu", {}).get("content", "菜单内容为空。")
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.save_config()
-
     def read_config(self):
-        with open(config.GAME, encoding="utf-8") as f:
+        with open(base.PATH_GAME_CONF, encoding="utf-8") as f:
             content = f.read()
             if content != "":
                 self.yaml_game = yaml.load(content, yaml.FullLoader)
+        self.select_content = self.yaml_game.get("select", {}).get("content", "查询内容为空。")
+        self.menu_content = self.yaml_game.get("menu", {}).get("content", "菜单内容为空。")
+
+    def save_config(self):
+        with open(base.PATH_GAME_CONF, "w", encoding="utf-8") as file:
+            yaml.dump(self.yaml_game, file, allow_unicode=True)
+        self.select_content = self.yaml_game.get("select", {}).get("content", "查询内容为空。")
+        self.menu_content = self.yaml_game.get("menu", {}).get("content", "菜单内容为空。")
 
     def get_sign_gold(self) -> int:
         gold_max = self.yaml_game.get("sign", {}).get("gold_max", 0)
@@ -42,8 +38,8 @@ class GameConfig:
         返回每天 60 秒读懂世界的配置信息。
         :return: 上次获取时间戳，图片路径
         """
-        times = self.yaml_game["daily_news"]["date_times"]
-        path_ = self.yaml_game["daily_news"]["image_path"]
+        times = self.yaml_game.get("daily_news", {}).get("date_times", "")
+        path_ = self.yaml_game.get("daily_news", {}).get("image_path", "")
         return times, path_
 
     def set_daily_news(self, times, path_):
@@ -52,4 +48,4 @@ class GameConfig:
         self.save_config()
 
 
-game_config = GameConfig()
+GAME_CONF = GameConfig()
