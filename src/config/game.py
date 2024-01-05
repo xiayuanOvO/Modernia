@@ -26,6 +26,10 @@ class GameConfig:
         self.menu_content = self.yaml_game.get("menu", {}).get("content", "菜单内容为空。")
 
     def get_sign_gold(self) -> int:
+        """
+        获取签到奖励金币数量
+        :return:
+        """
         gold_max = self.yaml_game.get("sign", {}).get("gold_max", 0)
         if gold_max == 0:
             return 0

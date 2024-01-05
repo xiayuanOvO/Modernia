@@ -5,7 +5,7 @@ import botpy
 from botpy import logging
 from botpy.message import Message
 
-import user
+from user import UserData
 from handlers import (
     handle_menu,
     handle_sign,
@@ -30,8 +30,9 @@ class MyClient(botpy.Client):
             return
 
         # 检查监禁状态
-        user_data = user.UserData(message.author.id)
-        if user_data.get_status() == 1:
+        with UserData(message.author.id) as user_data:
+            user_status = user_data.get_status()
+        if user_status == 1:
             await self.api.post_message(message.channel_id, '当前正在被监禁。')
             return
 
@@ -50,16 +51,16 @@ class MyClient(botpy.Client):
         }
 
         if keyword in command_handlers:
-            await command_handlers[keyword](split, message, user_data)
-        else:
-            command_handlers = {
-                "/追击": handle_chase
-            }
+            await command_handlers[keyword](split, message)
+            return
 
-            for key in command_handlers.keys():
-                if key in keyword:
-                    await command_handlers[key](split, message, user_data)
-                    break
+        command_handlers = {
+            "/追击": handle_chase
+        }
+        for key in command_handlers.keys():
+            if key in keyword:
+                await command_handlers[key](split, message)
+                break
 
 
 def run(appid, secret):

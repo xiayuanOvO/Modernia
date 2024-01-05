@@ -15,7 +15,7 @@ class UserData:
         :param author_id: 玩家频道 ID
         """
         self.author_id = author_id
-        self.player_path = f"{base.PATH_USER}{self.author_id}.json"
+        self.player_path = os.path.join(base.PATH_USER, f"{self.author_id}.json")
 
         # 查询文件是否存在
         if os.path.isfile(self.player_path):
@@ -23,6 +23,9 @@ class UserData:
                 self.player_json = json.load(f)
         else:
             self.player_json = {}
+
+    def __enter__(self):
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         with open(self.player_path, "w", encoding="utf-8") as f:
