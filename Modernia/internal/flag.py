@@ -6,9 +6,9 @@ from utils import conf
 
 
 def init():
-    # 判断运行环境
+    # 判断运行环境，获取程序当前运行目录
     if getattr(sys, 'frozen', False):
-        base.PATH_RUN = os.path.dirname(sys.executable)  # 获取可执行文件所在目录
+        base.PATH_RUN = os.path.dirname(sys.executable)
     else:
         if len(sys.argv) == 1:
             base.PATH_RUN = sys.path[0]
@@ -21,6 +21,9 @@ def init():
     base.PATH_TEMP_GOOD_LIST = os.path.join(base.PATH_RUN, "data", "shop", "tempGoodList.json")
     base.PATH_ARENA_RANKINGS = os.path.join(base.PATH_RUN, "data", "arena", "all", "rankings.json")
     base.PATH_GACHA_TABLE = os.path.join(base.PATH_RUN, "data", "excel", "gacha_table.json")
+
+    base.PATH_ANSWER_DATA = os.path.join(base.PATH_RUN, "data", "excel", "answer_data.json")
+    base.PATH_ANSWER_TABLE = os.path.join(base.PATH_RUN, "data", "excel", "answer_table.json")
 
     conf.create_directory()
 

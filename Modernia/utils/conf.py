@@ -2,8 +2,25 @@ import os
 
 import yaml
 
-import config.gacha
 from internal import base
+
+
+def create_directory():
+    paths = [
+        # os.path.join(config.RUN, "data"),
+        os.path.join(base.PATH_RUN, "data", "excel"),
+        os.path.join(base.PATH_RUN, "data", "shop"),
+        # os.path.join(base.PATH_RUN, "data", "static"),
+        # os.path.join(base.PATH_RUN, "data", "static", "images"),
+        os.path.join(base.PATH_RUN, "data", "static", "images", "dailyNews"),
+        # os.path.join(base.PATH_RUN, "data", "user"),
+        os.path.join(base.PATH_RUN, "data", "user", "all"),
+        # config
+        os.path.join(base.PATH_RUN, "config"),
+    ]
+
+    for path in paths:
+        os.makedirs(path, exist_ok=True)
 
 
 def generate_config():
@@ -63,26 +80,18 @@ def generate_gacha_table():
         yaml.dump(data, file, allow_unicode=True)
 
 
-def create_directory():
-    paths = [
-        # os.path.join(config.RUN, "data"),
-        os.path.join(base.PATH_RUN, "data", "excel"),
-        os.path.join(base.PATH_RUN, "data", "shop"),
-        # os.path.join(base.PATH_RUN, "data", "static"),
-        # os.path.join(base.PATH_RUN, "data", "static", "images"),
-        os.path.join(base.PATH_RUN, "data", "static", "images", "dailyNews"),
-        # os.path.join(base.PATH_RUN, "data", "user"),
-        os.path.join(base.PATH_RUN, "data", "user", "all"),
-        # config
-        os.path.join(base.PATH_RUN, "config"),
-    ]
-
-    for path in paths:
-        os.makedirs(path, exist_ok=True)
+def generate_answer_data():
+    data = {
+        "success_reward": 5,
+        "expiration_time": 15
+    }
+    with open(base.PATH_GACHA_TABLE, "w", encoding="utf-8") as file:
+        yaml.dump(data, file, allow_unicode=True)
 
 
 def load_all_filedata():
-    from config import gacha, game, shop
-    gacha.GACHA_INFO.load_pool()
-    game.GAME_CONF.read_config()
-    shop.temp_good_list.read_config()
+    from config import DATA_GAME_CONF, DATA_GACHA_INFO, DATA_TEMP_GOOD_LIST, DATA_ANSWER
+    DATA_GACHA_INFO.load_pool()
+    DATA_GAME_CONF.read_config()
+    DATA_TEMP_GOOD_LIST.read_config()
+    DATA_ANSWER.read()
