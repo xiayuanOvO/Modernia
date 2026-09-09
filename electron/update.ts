@@ -1,5 +1,8 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
-import { autoUpdater, type UpdateInfo, type ProgressInfo } from 'electron-updater'
+import electronUpdater from 'electron-updater'
+import type { UpdateInfo, ProgressInfo } from 'electron-updater'
+
+const { autoUpdater } = electronUpdater
 
 export type UpdateEvent =
   | { type: 'checking' }
