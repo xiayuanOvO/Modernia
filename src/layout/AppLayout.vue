@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, ref } from 'vue'
+import { computed, h, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   NConfigProvider,
@@ -27,12 +27,15 @@ import {
   MenuOutline,
   SunnyOutline,
   MoonOutline,
+  RefreshOutline,
 } from '@vicons/ionicons5'
 
 const route = useRoute()
 const router = useRouter()
 const collapsed = ref(false)
 const isDark = ref(false)
+const appVersion = ref('')
+const checkingUpdate = ref(false)
 
 function renderIcon(icon: unknown) {
   return () => h(NIcon, null, { default: () => h(icon as object) })
@@ -137,6 +140,25 @@ function handleMenuUpdate(key: string) {
   router.push(`/tools/${key}`)
 }
 
+async function checkForUpdates() {
+  if (!window.updateApi || checkingUpdate.value) return
+  checkingUpdate.value = true
+  try {
+    await window.updateApi.check()
+  } finally {
+    checkingUpdate.value = false
+  }
+}
+
+onMounted(async () => {
+  if (!window.updateApi) return
+  try {
+    appVersion.value = await window.updateApi.getVersion()
+  } catch {
+    appVersion.value = ''
+  }
+})
+
 const themeOverrides = computed<GlobalThemeOverrides>(() => ({
   common: {
     primaryColor: '#2F6FED',
@@ -203,11 +225,27 @@ const themeOverrides = computed<GlobalThemeOverrides>(() => ({
               <NText strong style="font-size: 16px">{{ pageTitle }}</NText>
             </NSpace>
 
-            <NButton quaternary circle @click="isDark = !isDark">
-              <template #icon>
-                <NIcon :component="isDark ? SunnyOutline : MoonOutline" />
-              </template>
-            </NButton>
+            <NSpace align="center" :size="8">
+              <NText v-if="appVersion" depth="3" style="font-size: 12px">
+                v{{ appVersion }}
+              </NText>
+              <NButton
+                quaternary
+                circle
+                title="检查更新"
+                :loading="checkingUpdate"
+                @click="checkForUpdates"
+              >
+                <template #icon>
+                  <NIcon :component="RefreshOutline" />
+                </template>
+              </NButton>
+              <NButton quaternary circle @click="isDark = !isDark">
+                <template #icon>
+                  <NIcon :component="isDark ? SunnyOutline : MoonOutline" />
+                </template>
+              </NButton>
+            </NSpace>
           </NSpace>
         </NLayoutHeader>
 

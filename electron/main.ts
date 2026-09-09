@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { parseApkFile } from './apkInfo'
+import { setupAutoUpdater } from './update'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -113,4 +114,5 @@ app.whenReady().then(() => {
     app.dock?.setIcon(path.join(process.env.VITE_PUBLIC!, 'logo-dock.png'))
   }
   createWindow()
+  setupAutoUpdater(() => win)
 })

@@ -10,17 +10,24 @@
     "build": "vue-tsc && vite build && electron-builder",
     "build:mac": "vue-tsc && vite build && electron-builder --mac",
     "build:win": "vue-tsc && vite build && electron-builder --win",
+    "build:linux": "vue-tsc && vite build && electron-builder --linux",
+    "release": "vue-tsc && vite build && electron-builder --publish always",
+    "release:mac": "vue-tsc && vite build && electron-builder --mac --publish always",
+    "release:win": "vue-tsc && vite build && electron-builder --win --publish always",
+    "release:linux": "vue-tsc && vite build && electron-builder --linux --publish always",
     "preview": "vite preview"
   },
   "dependencies": {
     "@vicons/ionicons5": "^0.13.0",
     "apk-info-parser": "^1.1.0",
+    "electron-updater": "^6.8.9",
     "naive-ui": "^2.45.3",
     "spark-md5": "^3.0.2",
     "vue": "^3.4.21",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@types/semver": "^7.8.0",
     "@types/spark-md5": "^3.0.5",
     "@vitejs/plugin-vue": "^5.0.4",
     "electron": "^30.0.1",
@@ -31,48 +38,5 @@
     "vite-plugin-electron-renderer": "^0.14.5",
     "vue-tsc": "^2.0.26"
   },
-  "main": "dist-electron/main.js",
-  "build": {
-    "appId": "cn.xiayuanovo.modernia",
-    "productName": "Modernia",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*"
-    ],
-    "mac": {
-      "icon": "build/icon.icns",
-      "identity": null,
-      "category": "public.app-category.developer-tools",
-      "target": [
-        "dmg",
-        "dir"
-      ]
-    },
-    "win": {
-      "icon": "build/icon.png",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ]
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "shortcutName": "Modernia"
-    }
-  }
+  "main": "dist-electron/main.js"
 }

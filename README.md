@@ -14,4 +14,5 @@ pnpm dev
 ```bash
 pnpm build:mac
 pnpm build:win
+pnpm build:linux
 ```

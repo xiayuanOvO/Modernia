@@ -23,3 +23,19 @@ contextBridge.exposeInMainWorld('apkApi', {
   selectAndParse: () => ipcRenderer.invoke('apk:select'),
   parsePath: (filePath: string) => ipcRenderer.invoke('apk:parse', filePath),
 })
+
+contextBridge.exposeInMainWorld('updateApi', {
+  getVersion: () => ipcRenderer.invoke('update:get-version') as Promise<string>,
+  check: () => ipcRenderer.invoke('update:check'),
+  download: () => ipcRenderer.invoke('update:download'),
+  install: () => ipcRenderer.invoke('update:install'),
+  onEvent: (listener: (event: unknown) => void) => {
+    const handler = (_event: unknown, payload: unknown) => {
+      listener(payload)
+    }
+    ipcRenderer.on('update:event', handler)
+    return () => {
+      ipcRenderer.off('update:event', handler)
+    }
+  },
+})

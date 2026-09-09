@@ -60,10 +60,47 @@ type ApkParsePathResult =
   | { data: ApkParseResult }
   | { error: string }
 
+interface UpdateInfoLite {
+  version: string
+  releaseDate?: string
+  releaseName?: string | null
+  releaseNotes?: string | Array<{ version: string; note: string | null }> | null
+}
+
+interface UpdateProgressLite {
+  percent: number
+  bytesPerSecond: number
+  transferred: number
+  total: number
+}
+
+type UpdateEventPayload =
+  | { type: 'checking' }
+  | { type: 'available'; info: UpdateInfoLite }
+  | { type: 'not-available'; info: UpdateInfoLite }
+  | { type: 'progress'; progress: UpdateProgressLite }
+  | { type: 'downloaded'; info: UpdateInfoLite }
+  | { type: 'error'; message: string }
+
+type UpdateCheckResult =
+  | { ok: true; updateInfo: UpdateInfoLite | null }
+  | { ok: false; error: string }
+
+type UpdateDownloadResult =
+  | { ok: true }
+  | { ok: false; error: string }
+
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
   apkApi: {
     selectAndParse: () => Promise<ApkSelectResult>
     parsePath: (filePath: string) => Promise<ApkParsePathResult>
+  }
+  updateApi: {
+    getVersion: () => Promise<string>
+    check: () => Promise<UpdateCheckResult>
+    download: () => Promise<UpdateDownloadResult>
+    install: () => Promise<void>
+    onEvent: (listener: (event: UpdateEventPayload) => void) => () => void
   }
 }
