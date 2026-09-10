@@ -25,29 +25,53 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
 let win: BrowserWindow | null
+/** macOS：Cmd+Q 真正退出时才销毁窗口，点关闭只隐藏 */
+let isQuitting = false
 
 function createWindow() {
+  if (win) {
+    win.show()
+    win.focus()
+    return
+  }
+
   win = new BrowserWindow({
     width: 1180,
     height: 760,
     minWidth: 880,
     minHeight: 560,
     title: 'Modernia',
+    show: false,
+    backgroundColor: '#f7f8fa',
     icon: path.join(process.env.VITE_PUBLIC, 'logo.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
   })
 
-  // Test active push message to Renderer-process.
+  win.once('ready-to-show', () => {
+    win?.show()
+  })
+
+  // macOS：关窗隐藏到 Dock，保留页面状态，避免再次打开白屏重载
+  win.on('close', (event) => {
+    if (process.platform === 'darwin' && !isQuitting) {
+      event.preventDefault()
+      win?.hide()
+    }
+  })
+
+  win.on('closed', () => {
+    win = null
+  })
+
   win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', (new Date).toLocaleString())
+    win?.webContents.send('main-process-message', new Date().toLocaleString())
   })
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
   } else {
-    // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
 }
@@ -89,22 +113,26 @@ function registerIpc() {
   })
 }
 
+app.on('before-quit', () => {
+  isQuitting = true
+})
+
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
-    win = null
   }
 })
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
+  if (win) {
+    win.show()
+    win.focus()
+    return
   }
+  createWindow()
 })
 
 app.whenReady().then(() => {
