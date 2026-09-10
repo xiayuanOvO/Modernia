@@ -20,8 +20,11 @@ interface ApkCertInfo {
   validUntil: string
   signatureType: string
   md5: string
+  md5Colon: string
   sha1: string
+  sha1Colon: string
   sha256: string
+  sha256Colon: string
 }
 
 interface ApkSignatureInfo {
@@ -47,6 +50,12 @@ const loading = ref(false)
 const error = ref('')
 const result = ref<ApkParseResult | null>(null)
 const dragging = ref(false)
+
+const fingerprintRows = [
+  { label: 'MD5', hexKey: 'md5' as const, colonKey: 'md5Colon' as const },
+  { label: 'SHA1', hexKey: 'sha1' as const, colonKey: 'sha1Colon' as const },
+  { label: 'SHA256', hexKey: 'sha256' as const, colonKey: 'sha256Colon' as const },
+]
 
 const basicFields = computed(() => {
   if (!result.value) return []
@@ -145,8 +154,11 @@ async function copyAll() {
         `Subject：${cert.subject}`,
         `Issuer：${cert.issuer}`,
         `MD5：${cert.md5}`,
+        `MD5（冒号）：${cert.md5Colon}`,
         `SHA1：${cert.sha1}`,
+        `SHA1（冒号）：${cert.sha1Colon}`,
         `SHA256：${cert.sha256}`,
+        `SHA256（冒号）：${cert.sha256Colon}`,
       )
     })
   }
@@ -221,28 +233,34 @@ async function copyAll() {
                 {{ cert.validFrom }} 至 {{ cert.validUntil }}
               </NDescriptionsItem>
               <NDescriptionsItem label="算法">{{ cert.signatureType }}</NDescriptionsItem>
-              <NDescriptionsItem label="MD5">
-                <div class="row">
-                  <span class="mono">{{ cert.md5 }}</span>
-                  <NButton text type="primary" size="tiny" @click="copyText(cert.md5, 'MD5')">
-                    复制
-                  </NButton>
-                </div>
-              </NDescriptionsItem>
-              <NDescriptionsItem label="SHA1">
-                <div class="row">
-                  <span class="mono">{{ cert.sha1 }}</span>
-                  <NButton text type="primary" size="tiny" @click="copyText(cert.sha1, 'SHA1')">
-                    复制
-                  </NButton>
-                </div>
-              </NDescriptionsItem>
-              <NDescriptionsItem label="SHA256">
-                <div class="row">
-                  <span class="mono">{{ cert.sha256 }}</span>
-                  <NButton text type="primary" size="tiny" @click="copyText(cert.sha256, 'SHA256')">
-                    复制
-                  </NButton>
+              <NDescriptionsItem
+                v-for="fp in fingerprintRows"
+                :key="fp.label"
+                :label="fp.label"
+              >
+                <div class="fp-block">
+                  <div class="row">
+                    <span class="mono">{{ cert[fp.hexKey] }}</span>
+                    <NButton
+                      text
+                      type="primary"
+                      size="tiny"
+                      @click="copyText(cert[fp.hexKey], fp.label)"
+                    >
+                      复制
+                    </NButton>
+                  </div>
+                  <div class="row">
+                    <span class="mono">{{ cert[fp.colonKey] }}</span>
+                    <NButton
+                      text
+                      type="primary"
+                      size="tiny"
+                      @click="copyText(cert[fp.colonKey], `${fp.label} 冒号`)"
+                    >
+                      复制
+                    </NButton>
+                  </div>
                 </div>
               </NDescriptionsItem>
             </NDescriptions>
@@ -295,6 +313,13 @@ async function copyAll() {
   font-size: 12px;
   word-break: break-all;
   line-height: 1.5;
+}
+
+.fp-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
 }
 
 .cert + .cert {

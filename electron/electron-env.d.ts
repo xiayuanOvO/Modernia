@@ -29,8 +29,11 @@ interface ApkCertInfo {
   validUntil: string
   signatureType: string
   md5: string
+  md5Colon: string
   sha1: string
+  sha1Colon: string
   sha256: string
+  sha256Colon: string
 }
 
 interface ApkSignatureInfo {

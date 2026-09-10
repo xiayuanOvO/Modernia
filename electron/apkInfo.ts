@@ -7,9 +7,14 @@ export interface ApkCertInfo {
   validFrom: string
   validUntil: string
   signatureType: string
+  /** 连续小写十六进制 */
   md5: string
+  /** 冒号分隔大写，如 AA:BB:CC */
+  md5Colon: string
   sha1: string
+  sha1Colon: string
   sha256: string
+  sha256Colon: string
 }
 
 export interface ApkSignatureInfo {
@@ -37,7 +42,22 @@ function formatDateTime(value: string): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
 }
 
+/** 归一化为连续小写 hex */
+function toHex(value: string): string {
+  return value.replace(/[^0-9a-fA-F]/g, '').toLowerCase()
+}
+
+/** 转为 AA:BB:CC 大写冒号格式 */
+function toColon(value: string): string {
+  const hex = toHex(value)
+  if (!hex) return value
+  return (hex.match(/.{1,2}/g) ?? []).join(':').toUpperCase()
+}
+
 function mapCert(cert: CertificateInfo): ApkCertInfo {
+  const md5 = toHex(cert.md5Fingerprint)
+  const sha1 = toHex(cert.sha1Fingerprint)
+  const sha256 = toHex(cert.sha256Fingerprint)
   return {
     subject: cert.subject,
     issuer: cert.issuer,
@@ -45,9 +65,12 @@ function mapCert(cert: CertificateInfo): ApkCertInfo {
     validFrom: formatDateTime(cert.validFrom),
     validUntil: formatDateTime(cert.validUntil),
     signatureType: cert.signatureType,
-    md5: cert.md5Fingerprint,
-    sha1: cert.sha1Fingerprint,
-    sha256: cert.sha256Fingerprint,
+    md5,
+    md5Colon: toColon(md5),
+    sha1,
+    sha1Colon: toColon(sha1),
+    sha256,
+    sha256Colon: toColon(sha256),
   }
 }
 
