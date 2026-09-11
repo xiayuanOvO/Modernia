@@ -19,6 +19,7 @@ import {
 import {
   HomeOutline,
   CodeSlashOutline,
+  GitCompareOutline,
   KeyOutline,
   TimeOutline,
   FingerPrintOutline,
@@ -61,6 +62,11 @@ const expandedMenuOptions: MenuOption[] = [
         label: 'JSON 工具',
         key: 'json',
         icon: renderIcon(CodeSlashOutline),
+      },
+      {
+        label: '文本对比',
+        key: 'diff',
+        icon: renderIcon(GitCompareOutline),
       },
     ],
   },

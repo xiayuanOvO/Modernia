@@ -15,6 +15,13 @@ export const tools: ToolItem[] = [
     group: '文本处理',
   },
   {
+    key: 'diff',
+    label: '文本对比',
+    description: '对比两段文本的行 / 词 / 字符差异',
+    path: '/tools/diff',
+    group: '文本处理',
+  },
+  {
     key: 'base64',
     label: 'Base64',
     description: '编码与解码 Base64 字符串',

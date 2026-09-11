@@ -21,6 +21,12 @@ const router = createRouter({
           meta: { title: 'JSON 工具' },
         },
         {
+          path: 'tools/diff',
+          name: 'diff',
+          component: () => import('../views/tools/DiffTool.vue'),
+          meta: { title: '文本对比' },
+        },
+        {
           path: 'tools/base64',
           name: 'base64',
           component: () => import('../views/tools/Base64Tool.vue'),
