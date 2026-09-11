@@ -20,7 +20,9 @@
   ],
   "mac": {
     "icon": "build/icon.icns",
-    "identity": null,
+    // Ad-hoc 签名：避免 Apple Silicon 报「已损坏」；仍会提示未验证开发者（可「仍要打开」）
+    "identity": "-",
+    "notarize": false,
     "category": "public.app-category.developer-tools",
     "target": [
       "dmg",
