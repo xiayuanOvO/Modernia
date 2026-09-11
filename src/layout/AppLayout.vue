@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, onMounted, provide, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   NConfigProvider,
@@ -36,6 +36,8 @@ const collapsed = ref(false)
 const isDark = ref(false)
 const appVersion = ref('')
 const checkingUpdate = ref(false)
+
+provide('isDark', isDark)
 
 function renderIcon(icon: unknown) {
   return () => h(NIcon, null, { default: () => h(icon as object) })

@@ -10,7 +10,7 @@ export const tools: ToolItem[] = [
   {
     key: 'json',
     label: 'JSON 工具',
-    description: '格式化、压缩与校验 JSON 文本',
+    description: '格式化、折叠与编辑 JSON',
     path: '/tools/json',
     group: '文本处理',
   },
