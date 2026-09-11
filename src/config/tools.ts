@@ -49,6 +49,13 @@ export const tools: ToolItem[] = [
     path: '/tools/apk',
     group: 'Android',
   },
+  {
+    key: 'currency',
+    label: '汇率换算',
+    description: '常用货币实时汇率换算',
+    path: '/tools/currency',
+    group: '生活实用',
+  },
 ]
 
 export function getToolByKey(key: string) {

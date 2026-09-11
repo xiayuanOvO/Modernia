@@ -8,6 +8,7 @@ import {
   FingerPrintOutline,
   PersonOutline,
   PhonePortraitOutline,
+  CashOutline,
 } from '@vicons/ionicons5'
 import { tools } from '../config/tools'
 import type { Component } from 'vue'
@@ -21,6 +22,7 @@ const iconMap: Record<string, Component> = {
   hash: FingerPrintOutline,
   'fake-person': PersonOutline,
   apk: PhonePortraitOutline,
+  currency: CashOutline,
 }
 
 function openTool(path: string) {

@@ -24,6 +24,7 @@ import {
   FingerPrintOutline,
   PersonOutline,
   PhonePortraitOutline,
+  CashOutline,
   MenuOutline,
   SunnyOutline,
   MoonOutline,
@@ -112,6 +113,18 @@ const expandedMenuOptions: MenuOption[] = [
         label: 'APK 信息',
         key: 'apk',
         icon: renderIcon(PhonePortraitOutline),
+      },
+    ],
+  },
+  {
+    type: 'group',
+    label: '生活实用',
+    key: 'life',
+    children: [
+      {
+        label: '汇率换算',
+        key: 'currency',
+        icon: renderIcon(CashOutline),
       },
     ],
   },

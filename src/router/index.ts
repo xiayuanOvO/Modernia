@@ -50,6 +50,12 @@ const router = createRouter({
           component: () => import('../views/tools/ApkTool.vue'),
           meta: { title: 'APK 信息' },
         },
+        {
+          path: 'tools/currency',
+          name: 'currency',
+          component: () => import('../views/tools/CurrencyTool.vue'),
+          meta: { title: '汇率换算' },
+        },
       ],
     },
   ],
