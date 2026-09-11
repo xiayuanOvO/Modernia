@@ -5,6 +5,3 @@ allowBuilds:
 
 # Electron 打包需要扁平 node_modules，否则 electron-updater 传递依赖打不进 asar
 nodeLinker: hoisted
-
-minimumReleaseAgeExclude:
-  - vite@8.3.0

@@ -1,34 +1,15 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
+import { join } from 'node:path'
 import { parseApkFile } from './apkInfo'
 import { setupAutoUpdater } from './update'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// The built directory structure
-//
-// ├─┬─┬ dist
-// │ │ └── index.html
-// │ │
-// │ ├─┬ dist-electron
-// │ │ ├── main.js
-// │ │ └── preload.mjs
-// │
-process.env.APP_ROOT = path.join(__dirname, '..')
-
-// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
-export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
-export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
-export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
-
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
+import logoPath from '../../resources/logo.png?asset'
+import logoDockPath from '../../resources/logo-dock.png?asset'
 
 let win: BrowserWindow | null
 /** macOS：Cmd+Q 真正退出时才销毁窗口，点关闭只隐藏 */
 let isQuitting = false
 
-function createWindow() {
+function createWindow(): void {
   if (win) {
     win.show()
     win.focus()
@@ -43,9 +24,10 @@ function createWindow() {
     title: 'Modernia',
     show: false,
     backgroundColor: '#f7f8fa',
-    icon: path.join(process.env.VITE_PUBLIC, 'logo.png'),
+    icon: logoPath,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'),
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false,
     },
   })
 
@@ -69,14 +51,14 @@ function createWindow() {
     win?.webContents.send('main-process-message', new Date().toLocaleString())
   })
 
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL)
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+    win.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
 
-function registerIpc() {
+function registerIpc(): void {
   ipcMain.handle('apk:select', async () => {
     const result = await dialog.showOpenDialog(win!, {
       title: '选择 APK 文件',
@@ -117,9 +99,6 @@ app.on('before-quit', () => {
   isQuitting = true
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
@@ -139,7 +118,7 @@ app.whenReady().then(() => {
   registerIpc()
   if (process.platform === 'darwin') {
     // dock.setIcon 不会套系统圆角遮罩，需使用自带透明圆角的图
-    app.dock?.setIcon(path.join(process.env.VITE_PUBLIC!, 'logo-dock.png'))
+    app.dock?.setIcon(logoDockPath)
   }
   createWindow()
   setupAutoUpdater(() => win)

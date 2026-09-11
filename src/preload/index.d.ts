@@ -1,26 +1,3 @@
-/// <reference types="vite-plugin-electron/electron-env" />
-
-declare namespace NodeJS {
-  interface ProcessEnv {
-    /**
-     * The built directory structure
-     *
-     * ```tree
-     * ├─┬─┬ dist
-     * │ │ └── index.html
-     * │ │
-     * │ ├─┬ dist-electron
-     * │ │ ├── main.js
-     * │ │ └── preload.js
-     * │
-     * ```
-     */
-    APP_ROOT: string
-    /** /dist/ or /public/ */
-    VITE_PUBLIC: string
-  }
-}
-
 interface ApkCertInfo {
   subject: string
   issuer: string
@@ -59,9 +36,7 @@ type ApkSelectResult =
   | { canceled: false; data: ApkParseResult }
   | { canceled: false; error: string }
 
-type ApkParsePathResult =
-  | { data: ApkParseResult }
-  | { error: string }
+type ApkParsePathResult = { data: ApkParseResult } | { error: string }
 
 interface UpdateInfoLite {
   version: string
@@ -89,21 +64,23 @@ type UpdateCheckResult =
   | { ok: true; updateInfo: UpdateInfoLite | null }
   | { ok: false; error: string }
 
-type UpdateDownloadResult =
-  | { ok: true }
-  | { ok: false; error: string }
+type UpdateDownloadResult = { ok: true } | { ok: false; error: string }
 
-interface Window {
-  ipcRenderer: import('electron').IpcRenderer
-  apkApi: {
-    selectAndParse: () => Promise<ApkSelectResult>
-    parsePath: (filePath: string) => Promise<ApkParsePathResult>
-  }
-  updateApi: {
-    getVersion: () => Promise<string>
-    check: () => Promise<UpdateCheckResult>
-    download: () => Promise<UpdateDownloadResult>
-    install: () => Promise<void>
-    onEvent: (listener: (event: UpdateEventPayload) => void) => () => void
+declare global {
+  interface Window {
+    ipcRenderer: import('electron').IpcRenderer
+    apkApi: {
+      selectAndParse: () => Promise<ApkSelectResult>
+      parsePath: (filePath: string) => Promise<ApkParsePathResult>
+    }
+    updateApi: {
+      getVersion: () => Promise<string>
+      check: () => Promise<UpdateCheckResult>
+      download: () => Promise<UpdateDownloadResult>
+      install: () => Promise<void>
+      onEvent: (listener: (event: UpdateEventPayload) => void) => () => void
+    }
   }
 }
+
+export {}

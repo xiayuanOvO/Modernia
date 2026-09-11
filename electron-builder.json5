@@ -5,11 +5,16 @@
   "asar": true,
   "productName": "Modernia",
   "directories": {
-    "output": "release/${version}"
+    "output": "release/${version}",
+    "buildResources": "build"
   },
   "files": [
-    "dist",
-    "dist-electron"
+    "out/**/*",
+    "resources/**/*",
+    "package.json"
+  ],
+  "asarUnpack": [
+    "resources/**"
   ],
   "publish": [
     {
