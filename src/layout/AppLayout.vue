@@ -29,11 +29,12 @@ import {
   MoonOutline,
   RefreshOutline,
 } from '@vicons/ionicons5'
+import { usePersistedRef } from '../utils/persist'
 
 const route = useRoute()
 const router = useRouter()
 const collapsed = ref(false)
-const isDark = ref(false)
+const isDark = usePersistedRef('ui.isDark', false)
 const appVersion = ref('')
 const checkingUpdate = ref(false)
 

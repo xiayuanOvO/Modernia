@@ -55,6 +55,10 @@ import {
   selectNextOccurrence,
   gotoLine,
 } from '@codemirror/search'
+import {
+  createDebouncedStringSaver,
+  loadPersistedString,
+} from '../../utils/persist'
 
 /** 实心三角折叠标记 */
 function createFoldMarker(open: boolean) {
@@ -230,7 +234,7 @@ const matchLabel = computed(() => {
   return `${matchIndex.value}/${matchTotal.value}`
 })
 
-const initialText = `{
+const defaultJson = `{
   "hello": "world",
   "list": [1, 2, 3],
   "nested": {
@@ -238,6 +242,9 @@ const initialText = `{
     "name": "tools"
   }
 }`
+
+const initialText = loadPersistedString('tool.json.content', defaultJson)
+const persistJson = createDebouncedStringSaver('tool.json.content')
 
 function getText(): string {
   return viewRef.value?.state.doc.toString() ?? ''
@@ -511,6 +518,9 @@ onMounted(() => {
         linter(jsonParseLinter()),
         EditorView.lineWrapping,
         EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            persistJson.save(update.state.doc.toString())
+          }
           if (!searchOpen.value) return
           if (update.docChanged || update.selectionSet) {
             countMatches(update.view, buildQuery())
@@ -522,7 +532,10 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  viewRef.value?.destroy()
+  if (viewRef.value) {
+    persistJson.flush(viewRef.value.state.doc.toString())
+    viewRef.value.destroy()
+  }
   viewRef.value = null
 })
 </script>

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { NSpace, NButton, NInput, NAlert, useMessage } from 'naive-ui'
+import { usePersistedRef } from '../../utils/persist'
 
 const message = useMessage()
-const plain = ref('Hello Modernia')
-const encoded = ref('')
+const plain = usePersistedRef('tool.base64.plain', 'Hello Modernia')
+const encoded = usePersistedRef('tool.base64.encoded', '')
 const error = ref('')
 
 function encode() {

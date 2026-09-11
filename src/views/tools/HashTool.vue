@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { NSpace, NButton, NInput, NSelect, useMessage } from 'naive-ui'
 import SparkMD5 from 'spark-md5'
+import { usePersistedRef } from '../../utils/persist'
 
 const message = useMessage()
-const input = ref('Hello Modernia')
-const algo = ref<'MD5' | 'SHA-1' | 'SHA-256' | 'SHA-512'>('MD5')
-const output = ref('')
+const input = usePersistedRef('tool.hash.input', 'Hello Modernia')
+const algo = usePersistedRef<'MD5' | 'SHA-1' | 'SHA-256' | 'SHA-512'>(
+  'tool.hash.algo',
+  'MD5',
+)
+const output = usePersistedRef('tool.hash.output', '')
 
 const algoOptions = [
   { label: 'MD5', value: 'MD5' },
