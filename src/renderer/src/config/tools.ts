@@ -43,6 +43,13 @@ export const tools: ToolItem[] = [
     group: '数据生成',
   },
   {
+    key: 'image',
+    label: '图片压缩',
+    description: '压缩并转换 WebP / PNG / JPEG',
+    path: '/tools/image',
+    group: '媒体处理',
+  },
+  {
     key: 'apk',
     label: 'APK 信息',
     description: '读取 APK 包名、版本与签名证书指纹',

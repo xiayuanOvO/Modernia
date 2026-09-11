@@ -56,6 +56,12 @@ const router = createRouter({
           component: () => import('../views/tools/CurrencyTool.vue'),
           meta: { title: '汇率换算' },
         },
+        {
+          path: 'tools/image',
+          name: 'image',
+          component: () => import('../views/tools/ImageTool.vue'),
+          meta: { title: '图片压缩' },
+        },
       ],
     },
   ],

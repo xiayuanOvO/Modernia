@@ -25,6 +25,7 @@ import {
   PersonOutline,
   PhonePortraitOutline,
   CashOutline,
+  ImageOutline,
   MenuOutline,
   SunnyOutline,
   MoonOutline,
@@ -101,6 +102,18 @@ const expandedMenuOptions: MenuOption[] = [
         label: '虚拟信息',
         key: 'fake-person',
         icon: renderIcon(PersonOutline),
+      },
+    ],
+  },
+  {
+    type: 'group',
+    label: '媒体处理',
+    key: 'media',
+    children: [
+      {
+        label: '图片压缩',
+        key: 'image',
+        icon: renderIcon(ImageOutline),
       },
     ],
   },
