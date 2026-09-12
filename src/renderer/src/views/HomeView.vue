@@ -3,12 +3,14 @@ import { useRouter } from 'vue-router'
 import { NGrid, NGi, NIcon } from 'naive-ui'
 import {
   CodeSlashOutline,
+  GitCompareOutline,
   KeyOutline,
   TimeOutline,
   FingerPrintOutline,
   PersonOutline,
   PhonePortraitOutline,
   CashOutline,
+  ImageOutline,
 } from '@vicons/ionicons5'
 import { tools } from '../config/tools'
 import type { Component } from 'vue'
@@ -17,10 +19,12 @@ const router = useRouter()
 
 const iconMap: Record<string, Component> = {
   json: CodeSlashOutline,
+  diff: GitCompareOutline,
   base64: KeyOutline,
   timestamp: TimeOutline,
   hash: FingerPrintOutline,
   'fake-person': PersonOutline,
+  image: ImageOutline,
   apk: PhonePortraitOutline,
   currency: CashOutline,
 }
