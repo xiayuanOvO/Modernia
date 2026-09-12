@@ -37,6 +37,22 @@ const currencyOptions = CURRENCIES.map((c) => ({
   value: c.code,
 }))
 
+/** 支持 3,040 / 3 040 / 3040.5 */
+function parseAmountInput(input: string): number | null {
+  const cleaned = input.replace(/[,\s_]/g, '').trim()
+  if (!cleaned) return null
+  const n = Number(cleaned)
+  return Number.isFinite(n) ? n : null
+}
+
+function formatAmountInput(value: number | null): string {
+  if (value == null || !Number.isFinite(value)) return ''
+  return value.toLocaleString('en-US', {
+    maximumFractionDigits: 4,
+    useGrouping: true,
+  })
+}
+
 const result = computed(() => {
   if (amount.value == null || !rates.value) return null
   if (!Number.isFinite(amount.value)) return null
@@ -138,6 +154,8 @@ onMounted(() => {
               :min="0"
               :show-button="false"
               :precision="4"
+              :parse="parseAmountInput"
+              :format="formatAmountInput"
               placeholder="0"
               style="width: 100%"
             />
