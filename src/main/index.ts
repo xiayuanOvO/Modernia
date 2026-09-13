@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron'
 import { join } from 'node:path'
 import { parseApkFile } from './apkInfo'
 import { setupAutoUpdater } from './update'
@@ -47,14 +47,18 @@ function createWindow(): void {
     win = null
   })
 
-  win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString())
-  })
-
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'))
+  }
+}
+
+function parseApkOrError(filePath: string) {
+  try {
+    return { data: parseApkFile(filePath) }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : '解析 APK 失败' }
   }
 }
 
@@ -68,15 +72,7 @@ function registerIpc(): void {
     if (result.canceled || !result.filePaths[0]) {
       return { canceled: true as const }
     }
-    try {
-      const data = parseApkFile(result.filePaths[0])
-      return { canceled: false as const, data }
-    } catch (e) {
-      return {
-        canceled: false as const,
-        error: e instanceof Error ? e.message : '解析 APK 失败',
-      }
-    }
+    return { canceled: false as const, ...parseApkOrError(result.filePaths[0]) }
   })
 
   ipcMain.handle('apk:parse', async (_event, filePath: string) => {
@@ -86,12 +82,7 @@ function registerIpc(): void {
     if (!filePath.toLowerCase().endsWith('.apk')) {
       return { error: '请选择 .apk 文件' }
     }
-    try {
-      const data = parseApkFile(filePath)
-      return { data }
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : '解析 APK 失败' }
-    }
+    return parseApkOrError(filePath)
   })
 }
 
@@ -106,11 +97,6 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  if (win) {
-    win.show()
-    win.focus()
-    return
-  }
   createWindow()
 })
 
@@ -119,6 +105,10 @@ app.whenReady().then(() => {
   if (process.platform === 'darwin') {
     // dock.setIcon 不会套系统圆角遮罩，需使用自带透明圆角的图
     app.dock?.setIcon(logoDockPath)
+  }
+  // Windows：去掉默认菜单栏（文件 / 编辑 / 查看…）
+  if (process.platform === 'win32') {
+    Menu.setApplicationMenu(null)
   }
   createWindow()
   setupAutoUpdater(() => win)
