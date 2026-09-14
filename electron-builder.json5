@@ -13,6 +13,11 @@
     "resources/**/*",
     "package.json"
   ],
+  // 仅保留中英语言包，去掉 Chromium 其余 locale（约省 40MB+）
+  "electronLanguages": [
+    "en",
+    "zh_CN"
+  ],
   "asarUnpack": [
     "resources/**"
   ],
