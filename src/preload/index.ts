@@ -24,6 +24,23 @@ contextBridge.exposeInMainWorld('apkApi', {
   parsePath: (filePath: string) => ipcRenderer.invoke('apk:parse', filePath),
 })
 
+contextBridge.exposeInMainWorld('speedTestApi', {
+  listSources: () => ipcRenderer.invoke('speedtest:sources'),
+  run: (sourceId: string) => ipcRenderer.invoke('speedtest:run', sourceId),
+  abort: () => {
+    ipcRenderer.send('speedtest:abort')
+  },
+  onProgress: (listener: (progress: unknown) => void) => {
+    const handler = (_event: unknown, progress: unknown) => {
+      listener(progress)
+    }
+    ipcRenderer.on('speedtest:progress', handler)
+    return () => {
+      ipcRenderer.off('speedtest:progress', handler)
+    }
+  },
+})
+
 contextBridge.exposeInMainWorld('updateApi', {
   getVersion: () => ipcRenderer.invoke('update:get-version') as Promise<string>,
   check: () => ipcRenderer.invoke('update:check'),

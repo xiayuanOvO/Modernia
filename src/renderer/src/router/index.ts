@@ -63,6 +63,12 @@ const router = createRouter({
           meta: { title: '汇率换算' },
         },
         {
+          path: 'tools/speedtest',
+          name: 'speedtest',
+          component: () => import('../views/tools/SpeedTestTool.vue'),
+          meta: { title: '网络测速' },
+        },
+        {
           path: 'tools/image',
           name: 'image',
           component: () => import('../views/tools/ImageTool.vue'),

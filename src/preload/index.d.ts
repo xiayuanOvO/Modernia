@@ -66,12 +66,50 @@ type UpdateCheckResult =
 
 type UpdateDownloadResult = { ok: true } | { ok: false; error: string }
 
+type SpeedPhase = 'idle' | 'latency' | 'download' | 'upload' | 'done' | 'error'
+
+interface SpeedSourceInfo {
+  id: string
+  label: string
+  region: string
+  supportsUpload: boolean
+}
+
+interface SpeedSample {
+  sourceId: string
+  sourceLabel: string
+  latencyMs: number | null
+  jitterMs: number | null
+  downloadMbps: number | null
+  uploadMbps: number | null
+  colo: string | null
+  loc: string | null
+  ip: string | null
+  testedAt: number | null
+}
+
+interface SpeedProgress {
+  phase: SpeedPhase
+  latencyMs: number | null
+  jitterMs: number | null
+  downloadMbps: number | null
+  uploadMbps: number | null
+  progress: number
+  message: string
+}
+
 declare global {
   interface Window {
     ipcRenderer: import('electron').IpcRenderer
     apkApi: {
       selectAndParse: () => Promise<ApkSelectResult>
       parsePath: (filePath: string) => Promise<ApkParsePathResult>
+    }
+    speedTestApi: {
+      listSources: () => Promise<SpeedSourceInfo[]>
+      run: (sourceId: string) => Promise<SpeedSample | { aborted: true } | { error: string }>
+      abort: () => void
+      onProgress: (listener: (progress: SpeedProgress) => void) => () => void
     }
     updateApi: {
       getVersion: () => Promise<string>

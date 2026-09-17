@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron'
 import { join } from 'node:path'
 import { parseApkFile } from './apkInfo'
+import { runSpeedTest, listSpeedSources } from './speedTest'
 import { setupAutoUpdater } from './update'
 import logoPath from '../../resources/logo.png?asset'
 import logoDockPath from '../../resources/logo-dock.png?asset'
@@ -8,6 +9,7 @@ import logoDockPath from '../../resources/logo-dock.png?asset'
 let win: BrowserWindow | null
 /** macOS：Cmd+Q 真正退出时才销毁窗口，点关闭只隐藏 */
 let isQuitting = false
+const speedAbortBySender = new Map<number, AbortController>()
 
 function createWindow(): void {
   if (win) {
@@ -83,6 +85,43 @@ function registerIpc(): void {
       return { error: '请选择 .apk 文件' }
     }
     return parseApkOrError(filePath)
+  })
+
+  ipcMain.handle('speedtest:sources', () => listSpeedSources())
+
+  ipcMain.handle('speedtest:run', async (event, sourceId: string) => {
+    const senderId = event.sender.id
+    speedAbortBySender.get(senderId)?.abort()
+    const controller = new AbortController()
+    speedAbortBySender.set(senderId, controller)
+    try {
+      return await runSpeedTest(
+        typeof sourceId === 'string' && sourceId ? sourceId : 'aliyun',
+        (progress) => {
+          if (!event.sender.isDestroyed()) {
+            event.sender.send('speedtest:progress', progress)
+          }
+        },
+        controller.signal,
+      )
+    } catch (e) {
+      if (e instanceof Error && e.name === 'AbortError') {
+        return { aborted: true as const }
+      }
+      return {
+        error: e instanceof Error ? e.message : '测速失败',
+      }
+    } finally {
+      if (speedAbortBySender.get(senderId) === controller) {
+        speedAbortBySender.delete(senderId)
+      }
+    }
+  })
+
+  ipcMain.on('speedtest:abort', (event) => {
+    const controller = speedAbortBySender.get(event.sender.id)
+    controller?.abort()
+    speedAbortBySender.delete(event.sender.id)
   })
 }
 

@@ -70,6 +70,13 @@ export const tools: ToolItem[] = [
     path: '/tools/currency',
     group: '生活实用',
   },
+  {
+    key: 'speedtest',
+    label: '网络测速',
+    description: '延迟、下载与上传带宽测试',
+    path: '/tools/speedtest',
+    group: '生活实用',
+  },
 ]
 
 export function getToolByKey(key: string) {
