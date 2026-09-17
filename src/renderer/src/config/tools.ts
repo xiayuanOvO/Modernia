@@ -77,6 +77,13 @@ export const tools: ToolItem[] = [
     path: '/tools/speedtest',
     group: '生活实用',
   },
+  {
+    key: 'hardware-price',
+    label: '硬件报价',
+    description: 'CPU / 显卡 / 主板商城价与近期对比',
+    path: '/tools/hardware-price',
+    group: '生活实用',
+  },
 ]
 
 export function getToolByKey(key: string) {

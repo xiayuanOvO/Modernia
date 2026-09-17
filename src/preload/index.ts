@@ -41,6 +41,10 @@ contextBridge.exposeInMainWorld('speedTestApi', {
   },
 })
 
+contextBridge.exposeInMainWorld('hardwarePriceApi', {
+  fetch: () => ipcRenderer.invoke('hardware:fetch'),
+})
+
 contextBridge.exposeInMainWorld('updateApi', {
   getVersion: () => ipcRenderer.invoke('update:get-version') as Promise<string>,
   check: () => ipcRenderer.invoke('update:check'),

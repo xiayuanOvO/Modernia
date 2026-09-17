@@ -66,6 +66,23 @@ type UpdateCheckResult =
 
 type UpdateDownloadResult = { ok: true } | { ok: false; error: string }
 
+type HardwareCategory = 'cpu' | 'gpu' | 'motherboard'
+
+interface HardwarePriceItem {
+  id: string
+  name: string
+  price: number
+  url: string
+  category: HardwareCategory
+}
+
+interface HardwarePriceSnapshot {
+  cpu: HardwarePriceItem[]
+  gpu: HardwarePriceItem[]
+  motherboard: HardwarePriceItem[]
+  fetchedAt: number
+}
+
 type SpeedPhase = 'idle' | 'latency' | 'download' | 'upload' | 'done' | 'error'
 
 interface SpeedSourceInfo {
@@ -110,6 +127,9 @@ declare global {
       run: (sourceId: string) => Promise<SpeedSample | { aborted: true } | { error: string }>
       abort: () => void
       onProgress: (listener: (progress: SpeedProgress) => void) => () => void
+    }
+    hardwarePriceApi: {
+      fetch: () => Promise<HardwarePriceSnapshot | { error: string }>
     }
     updateApi: {
       getVersion: () => Promise<string>

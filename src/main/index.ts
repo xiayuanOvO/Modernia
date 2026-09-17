@@ -1,6 +1,7 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron'
 import { join } from 'node:path'
 import { parseApkFile } from './apkInfo'
+import { fetchAllHardwarePrices } from './hardwarePrice'
 import { runSpeedTest, listSpeedSources } from './speedTest'
 import { setupAutoUpdater } from './update'
 import logoPath from '../../resources/logo.png?asset'
@@ -35,6 +36,11 @@ function createWindow(): void {
 
   win.once('ready-to-show', () => {
     win?.show()
+  })
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    void shell.openExternal(url)
+    return { action: 'deny' }
   })
 
   // macOS：关窗隐藏到 Dock，保留页面状态，避免再次打开白屏重载
@@ -122,6 +128,16 @@ function registerIpc(): void {
     const controller = speedAbortBySender.get(event.sender.id)
     controller?.abort()
     speedAbortBySender.delete(event.sender.id)
+  })
+
+  ipcMain.handle('hardware:fetch', async () => {
+    try {
+      return await fetchAllHardwarePrices()
+    } catch (e) {
+      return {
+        error: e instanceof Error ? e.message : '获取硬件报价失败',
+      }
+    }
   })
 }
 

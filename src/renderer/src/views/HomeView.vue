@@ -12,6 +12,7 @@ import {
   CashOutline,
   ImageOutline,
   SpeedometerOutline,
+  HardwareChipOutline,
 } from '@vicons/ionicons5'
 import { tools } from '../config/tools'
 import type { Component } from 'vue'
@@ -29,6 +30,7 @@ const iconMap: Record<string, Component> = {
   apk: PhonePortraitOutline,
   currency: CashOutline,
   speedtest: SpeedometerOutline,
+  'hardware-price': HardwareChipOutline,
 }
 
 function openTool(path: string) {

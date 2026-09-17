@@ -69,6 +69,12 @@ const router = createRouter({
           meta: { title: '网络测速' },
         },
         {
+          path: 'tools/hardware-price',
+          name: 'hardware-price',
+          component: () => import('../views/tools/HardwarePriceTool.vue'),
+          meta: { title: '硬件报价' },
+        },
+        {
           path: 'tools/image',
           name: 'image',
           component: () => import('../views/tools/ImageTool.vue'),
