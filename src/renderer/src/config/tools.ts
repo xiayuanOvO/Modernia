@@ -84,6 +84,13 @@ export const tools: ToolItem[] = [
     path: '/tools/hardware-price',
     group: '生活实用',
   },
+  {
+    key: 'pc-build',
+    label: '装机比价',
+    description: '录入配件与价格，多方案合计对比',
+    path: '/tools/pc-build',
+    group: '生活实用',
+  },
 ]
 
 export function getToolByKey(key: string) {

@@ -75,6 +75,12 @@ const router = createRouter({
           meta: { title: '硬件报价' },
         },
         {
+          path: 'tools/pc-build',
+          name: 'pc-build',
+          component: () => import('../views/tools/PcBuildTool.vue'),
+          meta: { title: '装机比价' },
+        },
+        {
           path: 'tools/image',
           name: 'image',
           component: () => import('../views/tools/ImageTool.vue'),
