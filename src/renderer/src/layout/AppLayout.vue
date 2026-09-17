@@ -51,12 +51,13 @@ function renderIcon(icon: unknown) {
   return () => h(NIcon, null, { default: () => h(icon as object) })
 }
 
+const homeMenuOption: MenuOption = {
+  label: '概览',
+  key: 'home',
+  icon: renderIcon(HomeOutline),
+}
+
 const expandedMenuOptions: MenuOption[] = [
-  {
-    label: '概览',
-    key: 'home',
-    icon: renderIcon(HomeOutline),
-  },
   {
     type: 'group',
     label: '文本处理',
@@ -173,8 +174,10 @@ const expandedMenuOptions: MenuOption[] = [
   },
 ]
 
+const homeMenuOptions = computed<MenuOption[]>(() => [homeMenuOption])
+
 /** 收起时去掉分组，只保留带图标的菜单项，避免分组标题挤成竖排 */
-const menuOptions = computed<MenuOption[]>(() => {
+const toolMenuOptions = computed<MenuOption[]>(() => {
   if (!collapsed.value) return expandedMenuOptions
 
   const flat: MenuOption[] = []
@@ -189,6 +192,10 @@ const menuOptions = computed<MenuOption[]>(() => {
 })
 
 const activeKey = computed(() => (route.name as string) || 'home')
+const homeActiveKey = computed(() => (activeKey.value === 'home' ? 'home' : null))
+const toolActiveKey = computed(() =>
+  activeKey.value === 'home' ? null : activeKey.value,
+)
 const pageTitle = computed(() => (route.meta.title as string) || 'Modernia')
 
 function handleMenuUpdate(key: string) {
@@ -247,29 +254,48 @@ const themeOverrides = computed<GlobalThemeOverrides>(() => ({
         :collapsed-width="64"
         :width="220"
         :collapsed="collapsed"
-        show-trigger
-        @collapse="collapsed = true"
-        @expand="collapsed = false"
+        :show-trigger="false"
         :native-scrollbar="false"
+        content-style="height: 100%; overflow: hidden; display: flex; flex-direction: column;"
         class="app-sider"
+        :class="{ collapsed }"
       >
-        <div class="brand" :class="{ collapsed }">
-          <div class="brand-mark">
-            <img src="/logo.png" alt="Modernia" />
+        <div class="sider-body">
+          <div class="sider-pin">
+            <div class="brand" :class="{ collapsed }">
+              <div class="brand-mark">
+                <img src="/logo.png" alt="Modernia" />
+              </div>
+              <div v-if="!collapsed" class="brand-text">
+                <div class="brand-name">Modernia</div>
+              </div>
+            </div>
+
+            <NMenu
+              class="home-menu"
+              :collapsed="collapsed"
+              :collapsed-width="64"
+              :collapsed-icon-size="20"
+              :options="homeMenuOptions"
+              :value="homeActiveKey"
+              @update:value="handleMenuUpdate"
+            />
           </div>
-          <div v-if="!collapsed" class="brand-text">
-            <div class="brand-name">Modernia</div>
+
+          <div
+            class="sider-scroll"
+            :class="{ 'is-dark': isDark, collapsed }"
+          >
+            <NMenu
+              :collapsed="collapsed"
+              :collapsed-width="64"
+              :collapsed-icon-size="20"
+              :options="toolMenuOptions"
+              :value="toolActiveKey"
+              @update:value="handleMenuUpdate"
+            />
           </div>
         </div>
-
-        <NMenu
-          :collapsed="collapsed"
-          :collapsed-width="64"
-          :collapsed-icon-size="20"
-          :options="menuOptions"
-          :value="activeKey"
-          @update:value="handleMenuUpdate"
-        />
       </NLayoutSider>
 
       <NLayout class="app-main">
@@ -328,6 +354,81 @@ const themeOverrides = computed<GlobalThemeOverrides>(() => ({
 
 .app-sider {
   user-select: none;
+}
+
+.app-sider :deep(.n-layout-sider-scroll-container),
+.app-sider :deep(.n-scrollbar),
+.app-sider :deep(.n-scrollbar-container),
+.app-sider :deep(.n-scrollbar-content) {
+  height: 100%;
+  overflow: hidden !important;
+}
+
+.sider-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sider-pin {
+  flex-shrink: 0;
+}
+
+.sider-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: inherit;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
+}
+
+.sider-scroll.is-dark {
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+.sider-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sider-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sider-scroll::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.16);
+  border-radius: 999px;
+}
+
+.sider-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.28);
+}
+
+.sider-scroll.is-dark::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.sider-scroll.is-dark::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+/* 收起：隐藏滚动条，避免占宽导致选中背景变窄 */
+.sider-scroll.collapsed {
+  scrollbar-width: none;
+}
+
+.sider-scroll.collapsed::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.home-menu {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--n-border-color);
 }
 
 /* 收起态兜底：即使仍有分组标题也不占位、不换行 */
