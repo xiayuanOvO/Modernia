@@ -37,6 +37,8 @@ import {
   RefreshOutline,
 } from '@vicons/ionicons5'
 import { usePersistedRef } from '../utils/persist'
+import { useFavorites } from '../composables/useFavorites'
+import { toolIconMap } from '../config/toolIcons'
 
 const route = useRoute()
 const router = useRouter()
@@ -44,6 +46,7 @@ const collapsed = ref(false)
 const isDark = usePersistedRef('ui.isDark', false)
 const appVersion = ref('')
 const checkingUpdate = ref(false)
+const { favorites, favoriteTools } = useFavorites()
 
 provide('isDark', isDark)
 
@@ -176,12 +179,57 @@ const expandedMenuOptions: MenuOption[] = [
 
 const homeMenuOptions = computed<MenuOption[]>(() => [homeMenuOption])
 
-/** 收起时去掉分组，只保留带图标的菜单项，避免分组标题挤成竖排 */
-const toolMenuOptions = computed<MenuOption[]>(() => {
-  if (!collapsed.value) return expandedMenuOptions
+function buildFavoriteMenuItems(): MenuOption[] {
+  const items: MenuOption[] = []
+  for (const tool of favoriteTools.value) {
+    const icon = toolIconMap[tool.key]
+    if (!icon) continue
+    items.push({
+      label: tool.label,
+      key: tool.key,
+      icon: renderIcon(icon),
+    })
+  }
+  return items
+}
 
-  const flat: MenuOption[] = []
-  for (const option of expandedMenuOptions) {
+function filterGroupsByFavorites(groups: MenuOption[], favKeys: Set<string>): MenuOption[] {
+  const next: MenuOption[] = []
+  for (const option of groups) {
+    if (option.type !== 'group' || !option.children) {
+      next.push(option)
+      continue
+    }
+    const children = option.children.filter((child) => !favKeys.has(String(child.key)))
+    if (children.length === 0) continue
+    next.push({ ...option, children })
+  }
+  return next
+}
+
+/** 收藏靠前；收起时去掉分组，只保留带图标的菜单项 */
+const toolMenuOptions = computed<MenuOption[]>(() => {
+  const favKeys = new Set(favorites.value)
+  const favItems = buildFavoriteMenuItems()
+  const restGroups = filterGroupsByFavorites(expandedMenuOptions, favKeys)
+
+  if (!collapsed.value) {
+    const favGroup: MenuOption[] =
+      favItems.length > 0
+        ? [
+            {
+              type: 'group',
+              label: '收藏',
+              key: 'favorites',
+              children: favItems,
+            },
+          ]
+        : []
+    return [...favGroup, ...restGroups]
+  }
+
+  const flat: MenuOption[] = [...favItems]
+  for (const option of restGroups) {
     if (option.type === 'group' && option.children) {
       flat.push(...option.children)
     } else {

@@ -1,44 +1,21 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { NGrid, NGi, NIcon } from 'naive-ui'
-import {
-  CodeSlashOutline,
-  GitCompareOutline,
-  KeyOutline,
-  TimeOutline,
-  FingerPrintOutline,
-  PersonOutline,
-  PhonePortraitOutline,
-  CashOutline,
-  ImageOutline,
-  SpeedometerOutline,
-  HardwareChipOutline,
-  DesktopOutline,
-  QrCodeOutline,
-} from '@vicons/ionicons5'
-import { tools } from '../config/tools'
-import type { Component } from 'vue'
+import { Star, StarOutline } from '@vicons/ionicons5'
+import { toolIconMap } from '../config/toolIcons'
+import { useFavorites } from '../composables/useFavorites'
 
 const router = useRouter()
-
-const iconMap: Record<string, Component> = {
-  json: CodeSlashOutline,
-  diff: GitCompareOutline,
-  base64: KeyOutline,
-  timestamp: TimeOutline,
-  hash: FingerPrintOutline,
-  'fake-person': PersonOutline,
-  image: ImageOutline,
-  apk: PhonePortraitOutline,
-  currency: CashOutline,
-  speedtest: SpeedometerOutline,
-  'hardware-price': HardwareChipOutline,
-  'pc-build': DesktopOutline,
-  barcode: QrCodeOutline,
-}
+const { sortedTools, isFavorite, toggleFavorite } = useFavorites()
 
 function openTool(path: string) {
   router.push(path)
+}
+
+function onToggleFavorite(e: Event, key: string) {
+  e.stopPropagation()
+  e.preventDefault()
+  toggleFavorite(key)
 }
 </script>
 
@@ -49,16 +26,28 @@ function openTool(path: string) {
     </div>
 
     <NGrid cols="1 s:2 m:3" responsive="screen" :x-gap="16" :y-gap="16">
-      <NGi v-for="tool in tools" :key="tool.key">
+      <NGi v-for="tool in sortedTools" :key="tool.key">
         <button class="tool-item" type="button" @click="openTool(tool.path)">
           <div class="tool-top">
             <div class="tool-icon">
-              <NIcon :component="iconMap[tool.key]" :size="28" />
+              <NIcon :component="toolIconMap[tool.key]" :size="28" />
             </div>
             <div class="tool-meta">
               <div class="tool-title">{{ tool.label }}</div>
               <div class="tool-group">{{ tool.group }}</div>
             </div>
+            <button
+              class="fav-btn"
+              :class="{ active: isFavorite(tool.key) }"
+              type="button"
+              :title="isFavorite(tool.key) ? '取消收藏' : '收藏'"
+              @click="onToggleFavorite($event, tool.key)"
+            >
+              <NIcon
+                :component="isFavorite(tool.key) ? Star : StarOutline"
+                :size="18"
+              />
+            </button>
           </div>
           <div class="tool-desc">{{ tool.description }}</div>
         </button>
@@ -144,5 +133,35 @@ function openTool(path: string) {
   font-size: 13px;
   opacity: 0.72;
   line-height: 1.45;
+}
+
+.fav-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.35;
+  cursor: pointer;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+}
+
+.tool-item:hover .fav-btn {
+  opacity: 0.55;
+}
+
+.fav-btn:hover {
+  opacity: 1 !important;
+  background: rgba(47, 111, 237, 0.08);
+  color: #2f6fed;
+}
+
+.fav-btn.active {
+  opacity: 1;
+  color: #e6a23c;
 }
 </style>
