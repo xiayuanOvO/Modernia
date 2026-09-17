@@ -36,6 +36,13 @@ export const tools: ToolItem[] = [
     group: '编码转换',
   },
   {
+    key: 'barcode',
+    label: '码生成解码',
+    description: '二维码 / 条形码生成与图片解码',
+    path: '/tools/barcode',
+    group: '编码转换',
+  },
+  {
     key: 'hash',
     label: '哈希计算',
     description: '计算文本的 SHA-256 / SHA-1 / MD5',

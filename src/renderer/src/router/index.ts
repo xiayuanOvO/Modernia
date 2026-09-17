@@ -39,6 +39,12 @@ const router = createRouter({
           meta: { title: '时间戳' },
         },
         {
+          path: 'tools/barcode',
+          name: 'barcode',
+          component: () => import('../views/tools/BarcodeTool.vue'),
+          meta: { title: '码生成解码' },
+        },
+        {
           path: 'tools/hash',
           name: 'hash',
           component: () => import('../views/tools/HashTool.vue'),
