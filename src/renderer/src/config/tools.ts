@@ -24,7 +24,7 @@ export const tools: ToolItem[] = [
   {
     key: 'base64',
     label: 'Base64',
-    description: '编码与解码 Base64 字符串',
+    description: '文本 / 图片与 Base64 互转',
     path: '/tools/base64',
     group: '编码转换',
   },
