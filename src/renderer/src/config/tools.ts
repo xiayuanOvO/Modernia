@@ -64,6 +64,13 @@ export const tools: ToolItem[] = [
     group: '媒体处理',
   },
   {
+    key: 'pay-qr-crop',
+    label: '收款码裁剪',
+    description: '从微信 / 支付宝截图裁出收款二维码',
+    path: '/tools/pay-qr-crop',
+    group: '媒体处理',
+  },
+  {
     key: 'apk',
     label: 'APK 信息',
     description: '读取 APK 包名、版本与签名证书指纹',

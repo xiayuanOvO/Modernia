@@ -92,6 +92,12 @@ const router = createRouter({
           component: () => import('../views/tools/ImageTool.vue'),
           meta: { title: '图片压缩' },
         },
+        {
+          path: 'tools/pay-qr-crop',
+          name: 'pay-qr-crop',
+          component: () => import('../views/tools/PayQrCropTool.vue'),
+          meta: { title: '收款码裁剪' },
+        },
       ],
     },
   ],
