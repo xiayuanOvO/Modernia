@@ -19,19 +19,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create release with auto-generated notes
+      - name: Create release with commit-based notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${GITHUB_REF_NAME}"
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "Release $TAG already exists, skip create"
-          else
-            gh release create "$TAG" \
-              --title "$TAG" \
-              --generate-notes \
-              --draft
+            exit 0
           fi
+
+          NOTES="$(node scripts/generate-release-notes.mjs)"
+          echo "Generated release notes:"
+          echo "$NOTES"
+
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes "$NOTES" \
+            --draft
 
   release:
     needs: prepare-release
