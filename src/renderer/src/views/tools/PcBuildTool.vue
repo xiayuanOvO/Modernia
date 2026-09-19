@@ -25,7 +25,9 @@ import {
   GridOutline,
   HardwareChipOutline,
   LayersOutline,
+  LinkOutline,
   SnowOutline,
+  SwapHorizontalOutline,
   TrashOutline,
 } from '@vicons/ionicons5'
 import { usePersistedRef } from '../../utils/persist'
@@ -35,6 +37,7 @@ import {
   canRemovePart,
   comparePlans,
   createPart,
+  createBackup,
   createDefaultPlans,
   createPlan,
   duplicatePlan,
@@ -42,6 +45,7 @@ import {
   formatCny,
   formatDelta,
   formatPriceInput,
+  insertPart,
   lookupPartPrice,
   migratePlans,
   nextPlanName,
@@ -49,12 +53,15 @@ import {
   parsePriceInput,
   planCategoryTotals,
   planTotal,
+  platformSpend,
   rememberPartPrice,
   sanitizePartName,
   seedCatalogFromPlans,
+  stripBlankPlatformParts,
   suggestParts,
   type BuildPart,
   type BuildPlan,
+  type PartBackup,
   type PartCatalogEntry,
   type PartCategory,
 } from '../../utils/pcBuild'
@@ -70,10 +77,12 @@ const catalog = usePersistedRef<PartCatalogEntry[]>('tool.pc-build.catalog', [])
 
 const renaming = ref(false)
 const renameDraft = ref('')
+const openBackups = ref<Record<string, boolean>>({})
 
 const CATEGORY_ICONS: Record<PartCategory, Component> = {
   cpu: HardwareChipOutline,
   motherboard: GridOutline,
+  bundle: LinkOutline,
   memory: LayersOutline,
   gpu: FlashOutline,
   storage: DiscOutline,
@@ -152,12 +161,20 @@ const activeTotal = computed(() =>
 
 const compareRows = computed(() => comparePlans(plans.value))
 
+const showPlatform = computed(() =>
+  plans.value.some((plan) => plan.parts.some((part) => part.category === 'bundle')),
+)
+
 const categoryMatrix = computed(() => {
+  const folded = showPlatform.value
+    ? new Set<PartCategory>(['cpu', 'motherboard', 'bundle'])
+    : null
   const cats = PART_CATEGORIES.map((c) => c.value)
   const used = new Set<PartCategory>()
   for (const plan of plans.value) {
     const totals = planCategoryTotals(plan)
     for (const cat of cats) {
+      if (folded?.has(cat)) continue
       if ((totals[cat] ?? 0) > 0) used.add(cat)
     }
   }
@@ -218,7 +235,15 @@ function commitRename() {
 
 function addPart(category: PartCategory) {
   if (!activePlan.value) return
-  activePlan.value.parts.push(createPart(category))
+  let parts = activePlan.value.parts
+  if (category === 'bundle') {
+    const stripped = stripBlankPlatformParts(parts)
+    parts = stripped.parts
+    if (stripped.overlaps) {
+      message.warning('套装与已填的 CPU、主板会分别计入合计')
+    }
+  }
+  activePlan.value.parts = insertPart(parts, createPart(category))
 }
 
 function onAddPartSelect(key: string | number) {
@@ -324,6 +349,77 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
     catalog.value = rememberPartPrice(catalog.value, name, value, part.category)
   }
 }
+
+function isBlankBackup(backup: PartBackup): boolean {
+  const hasName = normalizePartName(backup.name).length > 0
+  const hasPrice = backup.price != null && Number.isFinite(backup.price) && backup.price > 0
+  return !hasName && !hasPrice
+}
+
+function toggleBackups(part: BuildPart) {
+  const open = !openBackups.value[part.id]
+  if (!open) {
+    part.backups = part.backups.filter((backup) => !isBlankBackup(backup))
+  }
+  openBackups.value = { ...openBackups.value, [part.id]: open }
+  if (open && part.backups.length === 0) {
+    part.backups.push(createBackup())
+  }
+}
+
+function addBackup(part: BuildPart) {
+  part.backups.push(createBackup())
+  openBackups.value = { ...openBackups.value, [part.id]: true }
+}
+
+function removeBackup(part: BuildPart, backupId: string) {
+  part.backups = part.backups.filter((backup) => backup.id !== backupId)
+}
+
+function rememberNamedPrice(category: PartCategory, name: string, price: number | null) {
+  const key = normalizePartName(name)
+  if (key && price != null && price > 0) {
+    catalog.value = rememberPartPrice(catalog.value, key, price, category)
+  }
+}
+
+function swapBackup(part: BuildPart, backup: PartBackup) {
+  const name = part.name
+  const price = part.price
+  part.name = backup.name
+  part.price = backup.price
+  backup.name = name
+  backup.price = price
+  rememberNamedPrice(part.category, part.name, part.price)
+  rememberNamedPrice(part.category, backup.name, backup.price)
+  message.success('已替换')
+}
+
+function onBackupNameUpdate(part: BuildPart, backup: PartBackup, value: string) {
+  const raw = value ?? ''
+  backup.name = /[￥¥]/.test(raw) ? sanitizePartName(raw) : raw
+  const price = lookupPartPrice(catalog.value, backup.name, part.category)
+  if (price != null) backup.price = price
+}
+
+function onBackupNameSelect(part: BuildPart, backup: PartBackup, value: string | number) {
+  backup.name = sanitizePartName(String(value))
+  const price = lookupPartPrice(catalog.value, backup.name, part.category)
+  if (price != null) backup.price = price
+}
+
+function onBackupPriceUpdate(part: BuildPart, backup: PartBackup, value: number | null) {
+  backup.price = value
+  rememberNamedPrice(part.category, backup.name, value)
+}
+
+function backupNameOptions(part: BuildPart, backup: PartBackup) {
+  return suggestParts(catalog.value, backup.name ?? '', part.category).map((entry) => ({
+    label: entry.name,
+    value: entry.name,
+    price: entry.price,
+  }))
+}
 </script>
 
 <template>
@@ -418,59 +514,133 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
           <span class="col-price">价格</span>
           <span class="col-action" />
         </div>
-        <div
-          v-for="part in activePlan.parts"
-          :key="part.id"
-          class="part-row"
-        >
-          <div class="col-cat cat-cell">
-            <NIcon
-              :component="CATEGORY_ICONS[part.category]"
-              :size="16"
-              class="cat-icon"
-            />
-            <span class="cat-label">{{ CATEGORY_LABELS[part.category] }}</span>
+        <div v-for="part in activePlan.parts" :key="part.id" class="part-block">
+          <div class="part-row">
+            <div class="col-cat cat-cell">
+              <NIcon
+                :component="CATEGORY_ICONS[part.category]"
+                :size="16"
+                class="cat-icon"
+              />
+              <span class="cat-label">{{ CATEGORY_LABELS[part.category] }}</span>
+            </div>
+            <div class="col-name">
+              <NAutoComplete
+                :value="part.name ?? ''"
+                :options="nameOptions(part)"
+                :render-label="renderNameLabel"
+                size="small"
+                placeholder="型号"
+                :get-show="nameShow"
+                @update:value="(v) => onNameUpdate(part, v)"
+                @select="(v) => onNameSelect(part, v)"
+                @keydown="(e) => onNameKeydown(part, e)"
+              />
+            </div>
+            <div class="col-price">
+              <NInputNumber
+                :value="part.price"
+                size="small"
+                :min="0"
+                :show-button="false"
+                placeholder="0"
+                :parse="parsePriceInput"
+                :format="formatPriceInput"
+                style="width: 100%"
+                @update:value="(v) => onPriceUpdate(part, v)"
+                @keydown="(e) => onPriceKeydown(part, e)"
+              />
+            </div>
+            <div class="col-action">
+              <NButton
+                quaternary
+                circle
+                size="small"
+                title="备用"
+                :class="{ 'has-backup': part.backups.length > 0 }"
+                @click="toggleBackups(part)"
+              >
+                <template #icon>
+                  <NIcon :component="SwapHorizontalOutline" />
+                </template>
+              </NButton>
+              <NButton
+                quaternary
+                circle
+                size="small"
+                :title="partRemovable(part) ? '删除' : '必选配件'"
+                :disabled="!partRemovable(part)"
+                @click="removePart(part.id)"
+              >
+                <template #icon>
+                  <NIcon :component="TrashOutline" />
+                </template>
+              </NButton>
+            </div>
           </div>
-          <div class="col-name">
-            <NAutoComplete
-              :value="part.name ?? ''"
-              :options="nameOptions(part)"
-              :render-label="renderNameLabel"
-              size="small"
-              placeholder="型号"
-              :get-show="nameShow"
-              @update:value="(v) => onNameUpdate(part, v)"
-              @select="(v) => onNameSelect(part, v)"
-              @keydown="(e) => onNameKeydown(part, e)"
-            />
-          </div>
-          <div class="col-price">
-            <NInputNumber
-              :value="part.price"
-              size="small"
-              :min="0"
-              :show-button="false"
-              placeholder="0"
-              :parse="parsePriceInput"
-              :format="formatPriceInput"
-              style="width: 100%"
-              @update:value="(v) => onPriceUpdate(part, v)"
-              @keydown="(e) => onPriceKeydown(part, e)"
-            />
-          </div>
-          <div class="col-action">
-            <NButton
-              quaternary
-              circle
-              size="small"
-              :title="partRemovable(part) ? '删除' : '必选配件'"
-              :disabled="!partRemovable(part)"
-              @click="removePart(part.id)"
-            >
-              <template #icon>
-                <NIcon :component="TrashOutline" />
-              </template>
-            </NButton>
+          <div v-if="openBackups[part.id]" class="backup-panel">
+            <div v-for="backup in part.backups" :key="backup.id" class="part-row backup-row">
+              <div class="col-cat cat-cell">
+                <span class="cat-label backup-label">备用</span>
+              </div>
+              <div class="col-name">
+                <NAutoComplete
+                  :value="backup.name ?? ''"
+                  :options="backupNameOptions(part, backup)"
+                  :render-label="renderNameLabel"
+                  size="small"
+                  placeholder="型号"
+                  :get-show="nameShow"
+                  @update:value="(v) => onBackupNameUpdate(part, backup, v)"
+                  @select="(v) => onBackupNameSelect(part, backup, v)"
+                />
+              </div>
+              <div class="col-price">
+                <NInputNumber
+                  :value="backup.price"
+                  size="small"
+                  :min="0"
+                  :show-button="false"
+                  placeholder="0"
+                  :parse="parsePriceInput"
+                  :format="formatPriceInput"
+                  style="width: 100%"
+                  @update:value="(v) => onBackupPriceUpdate(part, backup, v)"
+                />
+              </div>
+              <div class="col-action">
+                <NButton
+                  quaternary
+                  circle
+                  size="small"
+                  title="替换"
+                  @click="swapBackup(part, backup)"
+                >
+                  <template #icon>
+                    <NIcon :component="SwapHorizontalOutline" />
+                  </template>
+                </NButton>
+                <NButton
+                  quaternary
+                  circle
+                  size="small"
+                  title="删除"
+                  @click="removeBackup(part, backup.id)"
+                >
+                  <template #icon>
+                    <NIcon :component="TrashOutline" />
+                  </template>
+                </NButton>
+              </div>
+            </div>
+            <div class="backup-add">
+              <NButton size="tiny" quaternary @click="addBackup(part)">
+                <template #icon>
+                  <NIcon :component="AddOutline" />
+                </template>
+                备用
+              </NButton>
+            </div>
           </div>
         </div>
       </div>
@@ -516,6 +686,17 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
             {{ plan.name }}
           </span>
         </div>
+        <div v-if="showPlatform" class="matrix-row platform-row">
+          <span class="matrix-label">CPU+主板</span>
+          <span
+            v-for="plan in plans"
+            :key="plan.id"
+            class="matrix-cell mono"
+            :class="{ active: plan.id === activePlanId }"
+          >
+            {{ platformSpend(plan) > 0 ? formatCny(platformSpend(plan)) : '—' }}
+          </span>
+        </div>
         <div v-for="row in categoryMatrix" :key="row.category" class="matrix-row">
           <span class="matrix-label">
             <NIcon
@@ -541,7 +722,7 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
 
 <style scoped>
 .tool-page {
-  max-width: 560px;
+  max-width: 620px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -662,7 +843,7 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
 .parts-head,
 .part-row {
   display: grid;
-  grid-template-columns: 88px minmax(0, 1fr) 96px 36px;
+  grid-template-columns: 108px minmax(0, 1fr) 96px 64px;
   gap: 8px;
   align-items: center;
   padding: 6px 10px;
@@ -687,7 +868,30 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
 
 .col-action {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+  gap: 0;
+}
+
+.has-backup {
+  color: #2f6fed;
+}
+
+.backup-panel {
+  background: rgba(47, 111, 237, 0.04);
+}
+
+.backup-row {
+  border-top: 1px solid rgba(47, 111, 237, 0.08);
+}
+
+.backup-label {
+  padding-left: 22px;
+  opacity: 0.65;
+  font-size: 12px;
+}
+
+.backup-add {
+  padding: 2px 10px 6px 126px;
 }
 
 .cat-cell {
@@ -814,7 +1018,7 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
 .matrix-head,
 .matrix-row {
   display: grid;
-  grid-template-columns: 88px repeat(auto-fit, minmax(0, 1fr));
+  grid-template-columns: 108px repeat(auto-fit, minmax(0, 1fr));
   gap: 0;
 }
 
@@ -855,6 +1059,10 @@ function onPriceUpdate(part: BuildPart, value: number | null) {
 
 .matrix-cell {
   text-align: right;
+}
+
+.platform-row {
+  font-weight: 600;
 }
 
 @media (max-width: 640px) {

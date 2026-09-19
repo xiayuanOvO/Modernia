@@ -1,6 +1,7 @@
 export type PartCategory =
   | 'cpu'
   | 'motherboard'
+  | 'bundle'
   | 'memory'
   | 'gpu'
   | 'storage'
@@ -9,11 +10,18 @@ export type PartCategory =
   | 'cooler'
   | 'other'
 
+export interface PartBackup {
+  id: string
+  name: string
+  price: number | null
+}
+
 export interface BuildPart {
   id: string
   category: PartCategory
   name: string
   price: number | null
+  backups: PartBackup[]
 }
 
 export interface BuildPlan {
@@ -25,6 +33,7 @@ export interface BuildPlan {
 export const PART_CATEGORIES: { value: PartCategory; label: string }[] = [
   { value: 'cpu', label: 'CPU' },
   { value: 'motherboard', label: '主板' },
+  { value: 'bundle', label: 'CPU+主板' },
   { value: 'memory', label: '内存' },
   { value: 'gpu', label: '显卡' },
   { value: 'storage', label: '硬盘' },
@@ -38,12 +47,16 @@ export const CATEGORY_LABELS: Record<PartCategory, string> = Object.fromEntries(
   PART_CATEGORIES.map((c) => [c.value, c.label]),
 ) as Record<PartCategory, string>
 
-/** CPU / 主板 / 内存：方案中至少各保留一条，不可删尽。 */
+/** 内存至少一条。平台：CPU + 主板各一条，或一条 CPU+主板套装。 */
 export const REQUIRED_CATEGORIES: readonly PartCategory[] = [
   'cpu',
   'motherboard',
   'memory',
 ]
+
+const LEADING_ORDER: PartCategory[] = ['cpu', 'motherboard', 'bundle', 'memory']
+
+const PLATFORM_CATEGORIES: readonly PartCategory[] = ['cpu', 'motherboard', 'bundle']
 
 export function isRequiredCategory(category: PartCategory): boolean {
   return (REQUIRED_CATEGORIES as readonly PartCategory[]).includes(category)
@@ -53,16 +66,30 @@ export function countCategory(plan: BuildPlan, category: PartCategory): number {
   return plan.parts.filter((p) => p.category === category).length
 }
 
+export function hasBundle(plan: BuildPlan): boolean {
+  return plan.parts.some((p) => p.category === 'bundle')
+}
+
 /** 该行是否为某必选类别的最后一条（不可删、不可改类）。 */
 export function isRequiredSlotLocked(plan: BuildPlan, part: BuildPart): boolean {
-  return isRequiredCategory(part.category) && countCategory(plan, part.category) <= 1
+  if (part.category === 'memory') {
+    return countCategory(plan, 'memory') <= 1
+  }
+  if (part.category === 'bundle') {
+    return false
+  }
+  if (part.category === 'cpu' || part.category === 'motherboard') {
+    if (hasBundle(plan)) return false
+    return countCategory(plan, part.category) <= 1
+  }
+  return false
 }
 
 export function canRemovePart(plan: BuildPlan, part: BuildPart): boolean {
   return !isRequiredSlotLocked(plan, part)
 }
 
-function isBlankPart(part: BuildPart): boolean {
+export function isBlankPart(part: BuildPart): boolean {
   const hasName = normalizePartName(part.name).length > 0
   const hasPrice = part.price != null && Number.isFinite(part.price) && part.price > 0
   return !hasName && !hasPrice
@@ -70,31 +97,84 @@ function isBlankPart(part: BuildPart): boolean {
 
 /** 去掉未填写的非必选空行（清理旧版默认占位）。 */
 export function pruneBlankOptionalParts(plan: BuildPlan): BuildPlan {
-  const next = plan.parts.filter((p) => isRequiredCategory(p.category) || !isBlankPart(p))
+  const next = plan.parts.filter(
+    (p) => isRequiredCategory(p.category) || p.category === 'bundle' || !isBlankPart(p),
+  )
   if (next.length === plan.parts.length) return plan
   return { ...plan, parts: next }
 }
 
-/** 补齐缺失的必选配件行（兼容旧本地数据）。 */
-export function ensureRequiredParts(plan: BuildPlan): BuildPlan {
-  const missing = REQUIRED_CATEGORIES.filter(
-    (category) => !plan.parts.some((p) => p.category === category),
-  )
-  if (missing.length === 0) return plan
-  const inserts = missing.map((category) => createPart(category))
-  // 必选排在前面，保持 CPU → 主板 → 内存 顺序
-  const requiredOrder = new Map(
-    REQUIRED_CATEGORIES.map((c, i) => [c, i] as const),
-  )
-  const nextParts = [...inserts, ...plan.parts].sort((a, b) => {
-    const ai = requiredOrder.get(a.category)
-    const bi = requiredOrder.get(b.category)
-    if (ai != null && bi != null) return ai - bi
-    if (ai != null) return -1
-    if (bi != null) return 1
+function leadingRank(category: PartCategory): number {
+  return LEADING_ORDER.indexOf(category)
+}
+
+function sortLeading(parts: BuildPart[]): BuildPart[] {
+  return [...parts].sort((a, b) => {
+    const ai = leadingRank(a.category)
+    const bi = leadingRank(b.category)
+    if (ai >= 0 && bi >= 0) return ai - bi
+    if (ai >= 0) return -1
+    if (bi >= 0) return 1
     return 0
   })
-  return { ...plan, parts: nextParts }
+}
+
+/** 插入配件：套装 / CPU / 主板 / 内存按固定顺序，其余追加。 */
+export function insertPart(parts: BuildPart[], part: BuildPart): BuildPart[] {
+  const rank = leadingRank(part.category)
+  if (rank < 0) return [...parts, part]
+  let at = parts.length
+  for (let i = 0; i < parts.length; i++) {
+    const other = leadingRank(parts[i].category)
+    if (other < 0 || other > rank) {
+      at = i
+      break
+    }
+  }
+  const next = parts.slice()
+  next.splice(at, 0, part)
+  return next
+}
+
+/** 加上套装时去掉空的 CPU / 主板行，避免占位。已填价格的行保留。 */
+export function stripBlankPlatformParts(parts: BuildPart[]): {
+  parts: BuildPart[]
+  overlaps: boolean
+} {
+  let overlaps = false
+  const next = parts.filter((part) => {
+    if (part.category !== 'cpu' && part.category !== 'motherboard') return true
+    if (isBlankPart(part)) return false
+    overlaps = true
+    return true
+  })
+  return { parts: next, overlaps }
+}
+
+/** CPU、主板、套装的价格合计，用来对比分开买和套装。 */
+export function platformSpend(plan: BuildPlan): number {
+  return plan.parts.reduce((sum, part) => {
+    if (!(PLATFORM_CATEGORIES as readonly PartCategory[]).includes(part.category)) {
+      return sum
+    }
+    return sum + partLineTotal(part)
+  }, 0)
+}
+
+/** 补齐缺失的必选配件行（兼容旧本地数据）。 */
+export function ensureRequiredParts(plan: BuildPlan): BuildPlan {
+  const inserts: BuildPart[] = []
+  if (!plan.parts.some((p) => p.category === 'memory')) {
+    inserts.push(createPart('memory'))
+  }
+  if (!hasBundle(plan)) {
+    if (!plan.parts.some((p) => p.category === 'cpu')) inserts.push(createPart('cpu'))
+    if (!plan.parts.some((p) => p.category === 'motherboard')) {
+      inserts.push(createPart('motherboard'))
+    }
+  }
+  if (inserts.length === 0) return plan
+  return { ...plan, parts: sortLeading([...inserts, ...plan.parts]) }
 }
 
 export function ensurePlansRequired(plans: BuildPlan[]): BuildPlan[] {
@@ -120,9 +200,16 @@ export function migratePlans(plans: BuildPlan[]): BuildPlan[] {
   return changed ? next : plans
 }
 
-/** 旧数据 qty>1 拆成多行；去掉 qty；修好 null 型号。 */
+/** 旧数据 qty>1 拆成多行；去掉 qty；修好 null 型号；补上 backups。 */
 function expandLegacyQty(plan: BuildPlan): BuildPlan {
-  type LegacyPart = BuildPart & { qty?: number; name?: string | null }
+  type LegacyPart = {
+    id: string
+    category: PartCategory
+    name?: string | null
+    price: number | null
+    qty?: number
+    backups?: unknown
+  }
   let changed = false
   const parts: BuildPart[] = []
   for (const raw of plan.parts as LegacyPart[]) {
@@ -131,17 +218,44 @@ function expandLegacyQty(plan: BuildPlan): BuildPlan {
         ? Math.min(99, Math.floor(raw.qty))
         : 1
     const name = normalizePartName(raw.name)
-    if (qty > 1 || 'qty' in raw || raw.name !== name) changed = true
+    const normalized = normalizeBackups(raw.backups)
+    if (
+      qty > 1 ||
+      'qty' in raw ||
+      raw.name !== name ||
+      normalized.changed ||
+      !Array.isArray(raw.backups)
+    ) {
+      changed = true
+    }
     for (let i = 0; i < qty; i++) {
       parts.push({
         id: i === 0 ? raw.id : newId('part'),
         category: raw.category,
         name,
         price: raw.price,
+        backups: i === 0 ? normalized.list : [],
       })
     }
   }
   return changed ? { ...plan, parts } : plan
+}
+
+function normalizeBackups(raw: unknown): { list: PartBackup[]; changed: boolean } {
+  if (!Array.isArray(raw)) return { list: [], changed: true }
+  let changed = false
+  const list = raw.map((item) => {
+    const backup = item as { id?: string; name?: string | null; price?: number | null }
+    const id = typeof backup?.id === 'string' && backup.id ? backup.id : newId('bak')
+    const name = sanitizePartName(backup?.name)
+    const price =
+      typeof backup?.price === 'number' && Number.isFinite(backup.price) ? backup.price : null
+    if (id !== backup?.id || name !== (backup?.name ?? '') || price !== backup?.price) {
+      changed = true
+    }
+    return { id, name, price }
+  })
+  return { list, changed }
 }
 
 /** Default slots：CPU×1、主板×1、内存×2；其余添加时选择。 */
@@ -166,6 +280,18 @@ export function createPart(
   return {
     id: newId('part'),
     category,
+    name: '',
+    price: null,
+    backups: [],
+    ...overrides,
+  }
+}
+
+export function createBackup(
+  overrides: Partial<Omit<PartBackup, 'id'>> = {},
+): PartBackup {
+  return {
+    id: newId('bak'),
     name: '',
     price: null,
     ...overrides,
@@ -302,6 +428,9 @@ export function duplicatePlan(plan: BuildPlan, name: string): BuildPlan {
       createPart(p.category, {
         name: p.name,
         price: p.price,
+        backups: (p.backups ?? []).map((backup) =>
+          createBackup({ name: backup.name, price: backup.price }),
+        ),
       }),
     ),
   }
@@ -403,8 +532,14 @@ export function seedCatalogFromPlans(
   for (const plan of plans) {
     for (const part of plan.parts) {
       const name = sanitizePartName(part.name)
-      if (!name || part.price == null || part.price <= 0) continue
-      next = rememberPartPrice(next, name, part.price, part.category)
+      if (name && part.price != null && part.price > 0) {
+        next = rememberPartPrice(next, name, part.price, part.category)
+      }
+      for (const backup of part.backups ?? []) {
+        const backupName = sanitizePartName(backup.name)
+        if (!backupName || backup.price == null || backup.price <= 0) continue
+        next = rememberPartPrice(next, backupName, backup.price, part.category)
+      }
     }
   }
   return next

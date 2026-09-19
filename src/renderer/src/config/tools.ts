@@ -101,7 +101,7 @@ export const tools: ToolItem[] = [
   {
     key: 'pc-build',
     label: '装机比价',
-    description: '录入配件与价格，多方案合计对比',
+    description: '多方案合计，支持 CPU+主板套装与备用替换',
     path: '/tools/pc-build',
     group: '生活实用',
   },
