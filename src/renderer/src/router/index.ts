@@ -51,6 +51,12 @@ const router = createRouter({
           meta: { title: '哈希计算' },
         },
         {
+          path: 'tools/file-hash',
+          name: 'file-hash',
+          component: () => import('../views/tools/FileHashTool.vue'),
+          meta: { title: '文件哈希' },
+        },
+        {
           path: 'tools/fake-person',
           name: 'fake-person',
           component: () => import('../views/tools/FakePersonTool.vue'),

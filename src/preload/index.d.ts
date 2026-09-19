@@ -115,12 +115,30 @@ interface SpeedProgress {
   message: string
 }
 
+interface FileHashResult {
+  fileName: string
+  filePath: string
+  size: number
+  md5: string
+  sha1: string
+  sha256: string
+  sha512: string
+}
+
+type FileHashSelectResult =
+  | { canceled: true }
+  | ({ canceled: false } & FileHashResult)
+  | { canceled: false; error: string }
+
+type FileHashPathResult = FileHashResult | { error: string }
+
 declare global {
   interface Window {
     ipcRenderer: import('electron').IpcRenderer
     apkApi: {
       selectAndParse: () => Promise<ApkSelectResult>
       parsePath: (filePath: string) => Promise<ApkParsePathResult>
+      pathForFile: (file: File) => string
     }
     speedTestApi: {
       listSources: () => Promise<SpeedSourceInfo[]>
@@ -130,6 +148,12 @@ declare global {
     }
     hardwarePriceApi: {
       fetch: () => Promise<HardwarePriceSnapshot | { error: string }>
+    }
+    fileHashApi: {
+      selectAndHash: () => Promise<FileHashSelectResult>
+      hashPath: (filePath: string) => Promise<FileHashPathResult>
+      pathForFile: (file: File) => string
+      onProgress: (listener: (progress: number) => void) => () => void
     }
     updateApi: {
       getVersion: () => Promise<string>

@@ -125,17 +125,18 @@ async function parseDroppedPath(filePath: string) {
 function onDrop(e: DragEvent) {
   e.preventDefault()
   dragging.value = false
-  const file = e.dataTransfer?.files?.[0] as (File & { path?: string }) | undefined
+  const file = e.dataTransfer?.files?.[0]
   if (!file) return
   if (!file.name.toLowerCase().endsWith('.apk')) {
     message.warning('请拖入 .apk 文件')
     return
   }
-  if (!file.path) {
+  const filePath = window.apkApi?.pathForFile(file) || ''
+  if (!filePath) {
     message.error('无法读取文件路径，请改用「选择 APK」')
     return
   }
-  void parseDroppedPath(file.path)
+  void parseDroppedPath(filePath)
 }
 
 async function copyText(text: string, label: string) {

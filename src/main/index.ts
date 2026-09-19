@@ -1,6 +1,7 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron'
 import { join } from 'node:path'
 import { parseApkFile } from './apkInfo'
+import { hashFilePath } from './fileHash'
 import { fetchAllHardwarePrices } from './hardwarePrice'
 import { runSpeedTest, listSpeedSources } from './speedTest'
 import { setupAutoUpdater } from './update'
@@ -138,6 +139,46 @@ function registerIpc(): void {
         error: e instanceof Error ? e.message : '获取硬件报价失败',
       }
     }
+  })
+
+  async function hashFileOrError(
+    filePath: string,
+    sender: Electron.WebContents,
+  ) {
+    try {
+      const data = await hashFilePath(filePath, (progress) => {
+        if (!sender.isDestroyed()) {
+          sender.send('filehash:progress', progress)
+        }
+      })
+      return data
+    } catch (e) {
+      return {
+        error: e instanceof Error ? e.message : '计算文件哈希失败',
+      }
+    }
+  }
+
+  ipcMain.handle('filehash:select', async (event) => {
+    const result = await dialog.showOpenDialog(win!, {
+      title: '选择文件',
+      properties: ['openFile'],
+    })
+    if (result.canceled || !result.filePaths[0]) {
+      return { canceled: true as const }
+    }
+    const hashed = await hashFileOrError(result.filePaths[0], event.sender)
+    if ('error' in hashed) {
+      return { canceled: false as const, error: hashed.error }
+    }
+    return { canceled: false as const, ...hashed }
+  })
+
+  ipcMain.handle('filehash:path', async (event, filePath: string) => {
+    if (!filePath || typeof filePath !== 'string') {
+      return { error: '无效的文件路径' }
+    }
+    return hashFileOrError(filePath, event.sender)
   })
 }
 

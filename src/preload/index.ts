@@ -1,4 +1,4 @@
-import { ipcRenderer, contextBridge } from 'electron'
+import { ipcRenderer, contextBridge, webUtils } from 'electron'
 
 contextBridge.exposeInMainWorld('ipcRenderer', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
@@ -22,6 +22,13 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 contextBridge.exposeInMainWorld('apkApi', {
   selectAndParse: () => ipcRenderer.invoke('apk:select'),
   parsePath: (filePath: string) => ipcRenderer.invoke('apk:parse', filePath),
+  pathForFile: (file: File) => {
+    try {
+      return webUtils.getPathForFile(file)
+    } catch {
+      return ''
+    }
+  },
 })
 
 contextBridge.exposeInMainWorld('speedTestApi', {
@@ -43,6 +50,27 @@ contextBridge.exposeInMainWorld('speedTestApi', {
 
 contextBridge.exposeInMainWorld('hardwarePriceApi', {
   fetch: () => ipcRenderer.invoke('hardware:fetch'),
+})
+
+contextBridge.exposeInMainWorld('fileHashApi', {
+  selectAndHash: () => ipcRenderer.invoke('filehash:select'),
+  hashPath: (filePath: string) => ipcRenderer.invoke('filehash:path', filePath),
+  pathForFile: (file: File) => {
+    try {
+      return webUtils.getPathForFile(file)
+    } catch {
+      return ''
+    }
+  },
+  onProgress: (listener: (progress: number) => void) => {
+    const handler = (_event: unknown, progress: unknown) => {
+      if (typeof progress === 'number') listener(progress)
+    }
+    ipcRenderer.on('filehash:progress', handler)
+    return () => {
+      ipcRenderer.off('filehash:progress', handler)
+    }
+  },
 })
 
 contextBridge.exposeInMainWorld('updateApi', {

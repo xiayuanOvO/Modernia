@@ -50,6 +50,13 @@ export const tools: ToolItem[] = [
     group: '安全校验',
   },
   {
+    key: 'file-hash',
+    label: '文件哈希',
+    description: '计算本地文件的 MD5 / SHA-1 / SHA-256 / SHA-512',
+    path: '/tools/file-hash',
+    group: '安全校验',
+  },
+  {
     key: 'fake-person',
     label: '虚拟信息',
     description: '生成姓名、身份证、银行卡等测试数据',
