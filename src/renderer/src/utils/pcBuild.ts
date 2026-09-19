@@ -47,41 +47,12 @@ export const CATEGORY_LABELS: Record<PartCategory, string> = Object.fromEntries(
   PART_CATEGORIES.map((c) => [c.value, c.label]),
 ) as Record<PartCategory, string>
 
-/** 内存至少一条。平台：CPU + 主板各一条，或一条 CPU+主板套装。 */
-export const REQUIRED_CATEGORIES: readonly PartCategory[] = [
-  'cpu',
-  'motherboard',
-  'memory',
-]
-
 const LEADING_ORDER: PartCategory[] = ['cpu', 'motherboard', 'bundle', 'memory']
 
 const PLATFORM_CATEGORIES: readonly PartCategory[] = ['cpu', 'motherboard', 'bundle']
 
-export function isRequiredCategory(category: PartCategory): boolean {
-  return (REQUIRED_CATEGORIES as readonly PartCategory[]).includes(category)
-}
-
-export function countCategory(plan: BuildPlan, category: PartCategory): number {
-  return plan.parts.filter((p) => p.category === category).length
-}
-
-export function hasBundle(plan: BuildPlan): boolean {
-  return plan.parts.some((p) => p.category === 'bundle')
-}
-
-/** 该行是否为某必选类别的最后一条（不可删、不可改类）。 */
-export function isRequiredSlotLocked(plan: BuildPlan, part: BuildPart): boolean {
-  if (part.category === 'memory') {
-    return countCategory(plan, 'memory') <= 1
-  }
-  if (part.category === 'bundle') {
-    return false
-  }
-  if (part.category === 'cpu' || part.category === 'motherboard') {
-    if (hasBundle(plan)) return false
-    return countCategory(plan, part.category) <= 1
-  }
+/** 没有必选配件，任意行都可删除。 */
+export function isRequiredSlotLocked(_plan: BuildPlan, _part: BuildPart): boolean {
   return false
 }
 
@@ -95,28 +66,15 @@ export function isBlankPart(part: BuildPart): boolean {
   return !hasName && !hasPrice
 }
 
-/** 去掉未填写的非必选空行（清理旧版默认占位）。 */
+/** 去掉未填写的空行（清理旧版默认占位）。套装行保留。 */
 export function pruneBlankOptionalParts(plan: BuildPlan): BuildPlan {
-  const next = plan.parts.filter(
-    (p) => isRequiredCategory(p.category) || p.category === 'bundle' || !isBlankPart(p),
-  )
+  const next = plan.parts.filter((p) => p.category === 'bundle' || !isBlankPart(p))
   if (next.length === plan.parts.length) return plan
   return { ...plan, parts: next }
 }
 
 function leadingRank(category: PartCategory): number {
   return LEADING_ORDER.indexOf(category)
-}
-
-function sortLeading(parts: BuildPart[]): BuildPart[] {
-  return [...parts].sort((a, b) => {
-    const ai = leadingRank(a.category)
-    const bi = leadingRank(b.category)
-    if (ai >= 0 && bi >= 0) return ai - bi
-    if (ai >= 0) return -1
-    if (bi >= 0) return 1
-    return 0
-  })
 }
 
 /** 插入配件：套装 / CPU / 主板 / 内存按固定顺序，其余追加。 */
@@ -161,20 +119,9 @@ export function platformSpend(plan: BuildPlan): number {
   }, 0)
 }
 
-/** 补齐缺失的必选配件行（兼容旧本地数据）。 */
+/** 不再自动补配件行。保留函数以兼容旧调用。 */
 export function ensureRequiredParts(plan: BuildPlan): BuildPlan {
-  const inserts: BuildPart[] = []
-  if (!plan.parts.some((p) => p.category === 'memory')) {
-    inserts.push(createPart('memory'))
-  }
-  if (!hasBundle(plan)) {
-    if (!plan.parts.some((p) => p.category === 'cpu')) inserts.push(createPart('cpu'))
-    if (!plan.parts.some((p) => p.category === 'motherboard')) {
-      inserts.push(createPart('motherboard'))
-    }
-  }
-  if (inserts.length === 0) return plan
-  return { ...plan, parts: sortLeading([...inserts, ...plan.parts]) }
+  return plan
 }
 
 export function ensurePlansRequired(plans: BuildPlan[]): BuildPlan[] {
@@ -258,13 +205,8 @@ function normalizeBackups(raw: unknown): { list: PartBackup[]; changed: boolean 
   return { list, changed }
 }
 
-/** Default slots：CPU×1、主板×1、内存×2；其余添加时选择。 */
-export const DEFAULT_SLOTS: PartCategory[] = [
-  'cpu',
-  'motherboard',
-  'memory',
-  'memory',
-]
+/** 新方案从空列表开始，配件按需添加。 */
+export const DEFAULT_SLOTS: PartCategory[] = []
 
 let idSeq = 0
 
