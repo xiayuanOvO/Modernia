@@ -22,12 +22,14 @@ import {
   GitCompareOutline,
   KeyOutline,
   TimeOutline,
+  CalendarOutline,
   FingerPrintOutline,
   DocumentOutline,
   PersonOutline,
   PhonePortraitOutline,
   CashOutline,
   ImageOutline,
+  FilmOutline,
   CropOutline,
   SpeedometerOutline,
   HardwareChipOutline,
@@ -142,6 +144,11 @@ const expandedMenuOptions: MenuOption[] = [
         icon: renderIcon(ImageOutline),
       },
       {
+        label: 'MP4 转 GIF',
+        key: 'video-to-gif',
+        icon: renderIcon(FilmOutline),
+      },
+      {
         label: '收款码裁剪',
         key: 'pay-qr-crop',
         icon: renderIcon(CropOutline),
@@ -166,6 +173,11 @@ const expandedMenuOptions: MenuOption[] = [
     key: 'life',
     children: [
       {
+        label: '日期计算',
+        key: 'date-calculator',
+        icon: renderIcon(CalendarOutline),
+      },
+      {
         label: '汇率换算',
         key: 'currency',
         icon: renderIcon(CashOutline),
@@ -184,6 +196,11 @@ const expandedMenuOptions: MenuOption[] = [
         label: '装机比价',
         key: 'pc-build',
         icon: renderIcon(DesktopOutline),
+      },
+      {
+        label: '零食性价比',
+        key: 'snack-value',
+        icon: renderIcon(CashOutline),
       },
     ],
   },

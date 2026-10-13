@@ -39,6 +39,18 @@ const router = createRouter({
           meta: { title: '时间戳' },
         },
         {
+          path: 'tools/date-calculator',
+          name: 'date-calculator',
+          component: () => import('../views/tools/DateCalculatorTool.vue'),
+          meta: { title: '日期计算' },
+        },
+        {
+          path: 'tools/snack-value',
+          name: 'snack-value',
+          component: () => import('../views/tools/SnackValueTool.vue'),
+          meta: { title: '零食性价比' },
+        },
+        {
           path: 'tools/barcode',
           name: 'barcode',
           component: () => import('../views/tools/BarcodeTool.vue'),
@@ -97,6 +109,12 @@ const router = createRouter({
           name: 'image',
           component: () => import('../views/tools/ImageTool.vue'),
           meta: { title: '图片压缩' },
+        },
+        {
+          path: 'tools/video-to-gif',
+          name: 'video-to-gif',
+          component: () => import('../views/tools/VideoToGifTool.vue'),
+          meta: { title: 'MP4 转 GIF' },
         },
         {
           path: 'tools/pay-qr-crop',

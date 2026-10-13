@@ -36,6 +36,13 @@ export const tools: ToolItem[] = [
     group: '编码转换',
   },
   {
+    key: 'date-calculator',
+    label: '日期计算',
+    description: '按自然日或工作日推算日期',
+    path: '/tools/date-calculator',
+    group: '生活实用',
+  },
+  {
     key: 'barcode',
     label: '码生成解码',
     description: '二维码 / 条形码生成与图片解码',
@@ -68,6 +75,13 @@ export const tools: ToolItem[] = [
     label: '图片压缩',
     description: '压缩并转换 WebP / PNG / JPEG',
     path: '/tools/image',
+    group: '媒体处理',
+  },
+  {
+    key: 'video-to-gif',
+    label: 'MP4 转 GIF',
+    description: '将 MP4 视频片段转换为 GIF 动图',
+    path: '/tools/video-to-gif',
     group: '媒体处理',
   },
   {
@@ -110,6 +124,13 @@ export const tools: ToolItem[] = [
     label: '装机比价',
     description: '多方案合计，支持 CPU+主板套装与备用替换',
     path: '/tools/pc-build',
+    group: '生活实用',
+  },
+  {
+    key: 'snack-value',
+    label: '零食性价比',
+    description: '比较每包价格和每克单价，快速挑出更划算的零食',
+    path: '/tools/snack-value',
     group: '生活实用',
   },
 ]
